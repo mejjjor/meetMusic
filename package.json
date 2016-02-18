@@ -12,7 +12,7 @@
     "watch": "npm run watch:assets & npm run watch:css & npm run watch:scripts",
     "watch:assets": "chokidar 'app/assets/*' -c 'echo `date` && npm run build:assets -s'",
     "watch:css": "chokidar 'app/css/*' -c 'echo `date` && npm run build:css -s'",
-    "watch:scripts": "mkdir -p public/js && watchify app/js/app.js -o public/js/app.js -t babelify -t riotify"
+    "watch:scripts": "mkdir -p public/js && watchify app/js/app.js -o public/js/app.js -t babelify -t riotify -v true"
   },
   "repository": {
     "type": "git",

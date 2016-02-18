@@ -1,6 +1,6 @@
 var riot = require('riot')
 var todo = require('./todo.tag')
-import MyClass from "./MyClass"
+import MyClass from './MyClass' 
 
 
 var domReady = function(callback) {
@@ -8,10 +8,7 @@ var domReady = function(callback) {
 };
 
 domReady(function() {
-	riot.mount(todo)
+    riot.mount(todo)
     var myClass = new MyClass("Erik")
     document.getElementById("title").innerHTML += ", " + myClass.getAttr()
 });
-
-
-	
