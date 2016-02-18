@@ -1,7 +1,7 @@
 {
-  "name": "starter-kit_es6",
-  "version": "1.0.0",
-  "description": "Start fast !",
+  "name": "MeetMusic",
+  "version": "0.0.1",
+  "description": "Listen everything, everywhere",
   "main": "index.js",
   "scripts": {
     "clean": "mkdir -p public/ && rm -rf public/*",
@@ -21,9 +21,9 @@
   "author": "Mejjjor",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mejjjor/starter-kit_es6/issues"
+    "url": "https://github.com/mejjjor/meetMusic/issues"
   },
-  "homepage": "https://github.com/mejjjor/starter-kit_es6#readme",
+  "homepage": "https://github.com/mejjjor/meetMusic#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
     "babelify": "^7.2.0",
