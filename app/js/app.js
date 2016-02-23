@@ -25,12 +25,8 @@ global.init = function() {
     });
 }
 
-global.initialize = function() {
-
-      //  eventBus.trigger('videoReady')
-    setTimeout(function() {
-        eventBus.trigger('videoR')
-        document.getElementById('log').innerHTML += "<div>NOW</div>"
-        console.log('videoReady trigger')
-    }, 5000)
+global.onYTStateChange = function(event) {
+    if (event.data === 0) {
+        eventBus.trigger('playNext')
+    }
 }

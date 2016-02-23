@@ -38,6 +38,7 @@
     "font-awesome": "^4.5.0",
     "jquery": "^2.2.0",
     "lodash": "^4.5.0",
-    "normalize.css": "^3.0.3"
+    "normalize.css": "^3.0.3",
+    "sortablejs": "^1.4.2"
   }
 }

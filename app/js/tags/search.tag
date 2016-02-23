@@ -33,14 +33,14 @@
         })
     })
 
-    opts.eventBus.on('removeResult',(name)=>{
-        for(var i=0;i<this.results.length;i++)
-            if (this.results[i].item.snippet.title === name){
+    opts.eventBus.on('removeResult', (name) => {
+        for (var i = 0; i < this.results.length; i++)
+            if (this.results[i].item.snippet.title === name) {
                 this.results.splice(i, 1)
                 this.update()
                 break
             }
-    })   
+    })
 
     edit(e) {
         this.query = e.target.value

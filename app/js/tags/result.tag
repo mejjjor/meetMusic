@@ -12,11 +12,13 @@
 
     add(e) {
         opts.eventBus.trigger('addItem', this.data)
-        opts.eventBus.trigger('removeResult',this.data.track.title)
+        opts.eventBus.trigger('removeResult', this.data.track.title)
     }
 
     play(e) {
-        //add and play
+        opts.eventBus.trigger('addPlayItem', this.data)
+        opts.eventBus.trigger('playVideo', opts.content.id.videoId)
+        opts.eventBus.trigger('removeResult', this.data.track.title)
     }
 
     this.data = {
@@ -29,6 +31,7 @@
             name: "erik",
             thumbnail: "/favicon.png"
         },
+        status: {},
         play: function() {
             opts.eventBus.trigger('playVideo', opts.content.id.videoId)
         },
