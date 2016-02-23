@@ -1,6 +1,6 @@
 <mm-player>
     <ol id='playlist'>
-        <li each={ playlist } draggable='true'>
+        <li each={ playlist }>
             <mm-item content="{ item }"></mm-item>
         </li>
     </ol>
@@ -38,6 +38,8 @@
             item: data
         })
         this.currentId = data.id
+        data.status.play = 'hide'
+        data.status.pause = 'show'
         data.play()
         this.update()
     })
@@ -58,19 +60,37 @@
     })
 
     opts.eventBus.on('playNext', () => {
-        for (var i = 0; i < this.playlist.length - 1; i++)
+        var found = false
+        for (var i = 0; i < this.playlist.length - 1; i++) {
             if (this.playlist[i].item.id === this.currentId) {
                 opts.eventBus.trigger('stopOthers', this.playlist[i + 1].item.id)
                 this.playlist[i + 1].item.play()
 
                 this.currentId = this.playlist[i + 1].item.id
+                found = true
                 break
             }
+        }
+        //fin de la playlist
+        if (!found) {
+            this.playlist[i].item.status.play = 'show'
+            this.playlist[i].item.status.pause = 'hide'
+            this.playlist[i].item.pause()
+        }
         this.update()
     })
 
     opts.eventBus.on('setCurrent', (id) => {
         this.currentId = id
+    })
+
+    opts.eventBus.on('getSeekTime', (value) => {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.id == this.currentId) {
+                this.playlist[i].item.track.progress = value
+                break
+            }
+        this.update()
     })
 
     var getId = (function() {

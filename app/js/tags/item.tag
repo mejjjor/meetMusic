@@ -1,13 +1,19 @@
 <mm-item>
-    <i class="fa fa-play-circle fa-2x { opts.content.status.play }" onclick="{ play }"></i>
-    <i class="fa fa-pause-circle fa-2x { opts.content.status.pause }" onclick="{ pause }"></i>
-    <i class="fa fa-forward { opts.content.status.next }" onclick="{ next }"></i>
-    <img src="{ opts.content.track.thumbnail }" />
-    <div>
-        <span>{ opts.content.track.title }</span>
-        <span>{ opts.content.contributor.name }</span>
+    <div draggable='true'>
+        <i class="fa fa-play-circle fa-3x { opts.content.status.play }" onclick="{ play }"></i>
+        <i class="fa fa-pause-circle fa-3x { opts.content.status.pause }" onclick="{ pause }"></i>
+        <img src="{ opts.content.track.thumbnail }" />
+        <div>
+            <span>{ opts.content.track.title }</span>
+            <span>{ opts.content.contributor.name }</span>
+        </div>
+        <img src="{ opts.content.contributor.thumbnail }" class="img-circle" />
     </div>
-    <img src="{ opts.content.contributor.thumbnail }" class="img-circle" />
+    <div class='{ opts.content.status.pause }'>
+        <i class="fa fa-forward fa-2x { opts.content.status.pause }" onclick="{ next }"></i>
+        <input type='range' value="{ opts.content.track.progress }" max="100" onclick='{ seekTime }'>
+        </progress>
+    </div>
     <script>
     'use strict'
     this.on('mount', function() {
@@ -15,8 +21,8 @@
     })
 
     play(e) {
-        opts.eventBus.trigger('stopOthers',opts.content.id)
-        opts.eventBus.trigger('setCurrent',opts.content.id)
+        opts.eventBus.trigger('stopOthers', opts.content.id)
+        opts.eventBus.trigger('setCurrent', opts.content.id)
         opts.content.play()
     }
 
@@ -27,7 +33,11 @@
     }
 
     next(e) {
-        eventBus.trigger('playNext')
+        opts.eventBus.trigger('playNext')
+    }
+
+    seekTime(e) {
+        opts.content.seekTime(e.srcElement.value);
     }
     </script>
 </mm-item>

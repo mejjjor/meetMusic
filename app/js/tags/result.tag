@@ -1,6 +1,6 @@
 <mm-result>
-    <i class="fa fa-play-circle fa-2x" onclick="{ play }"></i>
-    <i class="fa fa-plus-circle fa-2x" onclick="{ add }"></i>
+    <i class="fa fa-play-circle fa-3x" onclick="{ play }"></i>
+    <i class="fa fa-plus-circle fa-3x" onclick="{ add }"></i>
     <img src="{ data.track.thumbnail }" />
     <span>{ data.track.duration }</span>
     <span>{ data.track.title }</span>
@@ -17,7 +17,6 @@
 
     play(e) {
         opts.eventBus.trigger('addPlayItem', this.data)
-        opts.eventBus.trigger('playVideo', opts.content.id.videoId)
         opts.eventBus.trigger('removeResult', this.data.track.title)
     }
 
@@ -25,7 +24,8 @@
         track: {
             title: opts.content.snippet.title,
             duration: opts.content.contentDetails.duration.replace(/(PT|S)/g, '').replace(/[^0-9]+/g, ':'),
-            thumbnail: opts.content.snippet.thumbnails.default.url
+            thumbnail: opts.content.snippet.thumbnails.default.url,
+            progress:0
         },
         contributor: {
             name: "erik",
@@ -37,6 +37,9 @@
         },
         pause: function() {
             opts.eventBus.trigger('pauseVideo', opts.content.id.videoId)
+        },
+        seekTime:function(value){
+            opts.eventBus.trigger('setSeekTimeVideo', value)
         }
     }
     </script>
