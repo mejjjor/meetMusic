@@ -7,7 +7,7 @@
     </ul>
     <script>
     'use strict'
-    var Completely = require('./complete.ly.1.0.1.min.js')
+    var Completely = require('../vendors/complete.ly.1.0.1.min.js')
     var $ = require('jquery')
     var _ = require('lodash')
     var apiKey = 'AIzaSyDrc_XoIlz_HqMflR0CHHOyatGemqwgAvo'
@@ -33,18 +33,16 @@
         })
     })
 
-
-
-    
+    opts.eventBus.on('removeResult',(name)=>{
+        for(var i=0;i<this.results.length;i++)
+            if (this.results[i].item.snippet.title === name){
+                this.results.splice(i, 1)
+                this.update()
+                break
+            }
+    })   
 
     edit(e) {
-    
-
-        console.log("zzzz")
-        console.log(this)
-// this.tags['mm-result'][0].on('addErik',function(){
-//         console.log('qqqqqqqqqqqqqqAAAAAA')
-//     })
         this.query = e.target.value
         if (e.keyCode >= 37 && e.keyCode <= 40)
             return;
@@ -80,7 +78,7 @@
                         results[i].item.contentDetails = response.result.items[i].contentDetails
                     }
                     this.results = results
-                    this.update();
+                    this.update()
                 })
             })
 
@@ -98,11 +96,6 @@
                 }
             });
         }
-
-
-        //get api youtube
-        //+ api suggest
-        //->update results + refresh riot?
         return true
     }
     </script>

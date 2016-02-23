@@ -6,10 +6,13 @@
     </ul>
     <script>
     'use strict'
+    this.playlist = [];
 
-    this.opts.eventBus.on('addErik', function(data) {
-        console.log('add it in player.tag' + data)
-        //this.update()
+    opts.eventBus.on('addItem', (data) => {
+        this.playlist.push({
+            item: data
+        })
+        this.update()
     })
     </script>
 </mm-player>

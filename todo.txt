@@ -1,1 +1,4 @@
-- component search youtube
+- play / pause / resume
+- barre de progression du temps
+- charger un fichier en local
+- design item
