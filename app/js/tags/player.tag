@@ -1,4 +1,5 @@
 <mm-player>
+    <audio id='mp3Player' ontimeupdate="{ timeUpdate }"></audio>
     <ol id='playlist'>
         <li each={ playlist }>
             <mm-item content="{ item }"></mm-item>
@@ -10,8 +11,14 @@
     var Sortable = require("sortablejs");
     this.playlist = []
     this.currentId = 0
+    var mp3Player
 
     this.on('mount', () => {
+        mp3Player = document.getElementById('mp3Player')
+        mp3Player.onended = () => {
+            opts.eventBus.trigger('playNext')
+        }
+
         var sortable = Sortable.create(document.getElementById('playlist'), {
             animation: 150,
             onEnd: (evt) => {
@@ -20,6 +27,10 @@
             }
         });
     })
+
+    timeUpdate(e) {
+        getCurrentItem().track.progress = mp3Player.currentTime
+    }
 
     opts.eventBus.on('addItem', (data) => {
         data.id = getId()
@@ -87,11 +98,27 @@
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
-                this.playlist[i].item.track.progress = value
+                this.playlist[i].item.track.progress = Math.round(value)
                 break
             }
         this.update()
     })
+
+    opts.eventBus.on('playMp3', (url) => {
+        if (mp3Player.currentSrc === url && !mp3Player.ended) {
+            mp3Player.play();
+        } else {
+            mp3Player.src = url
+            mp3Player.play()
+        }
+    })
+
+    opts.eventBus.on('pauseMp3', () => {
+        //mp3Player.src = URL.createObjectURL(file)
+        mp3Player.pause()
+    })
+
+
 
     var getId = (function() {
         var counter = 0
@@ -99,5 +126,12 @@
             return counter++
         }
     }())
+
+    var getCurrentItem = ()=> {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.id === this.currentId)
+                return this.playlist[i].item
+        return {}
+    }
     </script>
 </mm-player>

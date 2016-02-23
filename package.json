@@ -37,6 +37,7 @@
   "dependencies": {
     "font-awesome": "^4.5.0",
     "jquery": "^2.2.0",
+    "jsmediatags": "^3.0.5",
     "lodash": "^4.5.0",
     "normalize.css": "^3.0.3",
     "sortablejs": "^1.4.2"
