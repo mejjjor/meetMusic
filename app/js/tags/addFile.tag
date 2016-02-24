@@ -3,57 +3,58 @@
     <input id='inputFile' type='file' multiple onchange="{ addFile }"></input>
     <script>
     'use strict'
-    var jsmediatags = require("jsmediatags");
+    var id3 = require('id3js')
+
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
 
         opts.eventBus.on('addFiles', (files) => {
             for (let file of files) {
                 ((file) => {
-                    jsmediatags.read(file, {
-                        onSuccess: (tag) => {
-                            var url = URL.createObjectURL(file)
-                            opts.eventBus.trigger('youtubeSearch', tag.tags.artist + " " + tag.tags.title, 1, (results) => {
-                                var thumbnail
-                                if (results[0] == undefined)
-                                	thumbnail = '/favicon.png'
-                                else
-                                    thumbnail = results[0].item.snippet.thumbnails.default.url
-                                this.data = {
-                                    track: {
-                                        artist: tag.tags.artist,
-                                        title: tag.tags.title,
-                                        duration: "00:00",
-                                        thumbnail: thumbnail,
-                                        progress: 0
-                                    },
-                                    contributor: {
-                                        name: "erik",
-                                        thumbnail: "/favicon.png"
-                                    },
-                                    file: {
-                                        url: url
-                                    },
-                                    status: {},
-                                    play: function() {
-                                        opts.eventBus.trigger('playMp3', url)
-                                    },
-                                    pause: function() {
-                                        opts.eventBus.trigger('pauseMp3')
-                                    },
-                                    seekTime: function(value) {
-                                        opts.eventBus.trigger('seekMp3', value)
-                                    }
+                    id3(file, (err, tags) => {
+                        if (tags.artist == null)
+                            tags.artist = file.name.substring(0, file.name.length - 4)
+                        if (tags.title == null)
+                            tags.title = ""
+                        var url = URL.createObjectURL(file)
+                        opts.eventBus.trigger('youtubeSearch', tags.artist + " " + tags.title, 1, (results) => {
+                            var thumbnail
+                            if (results[0] == undefined)
+                                thumbnail = '/favicon.png'
+                            else
+                                thumbnail = results[0].item.snippet.thumbnails.default.url
+                            this.data = {
+                                track: {
+                                    artist: tags.artist,
+                                    title: tags.title,
+                                    duration: "00:00",
+                                    thumbnail: thumbnail,
+                                    progress: 0
+                                },
+                                contributor: {
+                                    name: "erik",
+                                    thumbnail: "/favicon.png"
+                                },
+                                file: {
+                                    url: url
+                                },
+                                status: {},
+                                play: function() {
+                                    opts.eventBus.trigger('playMp3', url)
+                                },
+                                pause: function() {
+                                    opts.eventBus.trigger('pauseMp3')
+                                },
+                                seekTime: function(value) {
+                                    opts.eventBus.trigger('seekMp3', value)
                                 }
-                                opts.eventBus.trigger('addItem', this.data)
+                            }
+                            opts.eventBus.trigger('addItem', this.data)
 
-                                this.update()
-                            })
+                            this.update()
+                        })
 
-                        },
-                        onError: function(error) {
-                            console.error(error.info);
-                        }
+
                     });
                 })(file);
             }
