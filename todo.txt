@@ -1,3 +1,4 @@
 - design item
 - add drag and drop
 - ajouter peer-to-peer
+- personaliser contributor

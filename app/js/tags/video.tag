@@ -39,7 +39,7 @@
     })
 
     opts.eventBus.on('setSeekTimeVideo', (value) => {
-        videoPlayer.seekTo(videoPlayer.getDuration())
+        videoPlayer.seekTo(value)
     })
 
     function getSeek() {

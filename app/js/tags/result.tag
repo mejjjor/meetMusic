@@ -6,6 +6,7 @@
     <span>{ data.track.title }</span>
     <script>
     'use strict'
+    var moment = require('moment')
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
     })
@@ -23,7 +24,7 @@
     this.data = {
         track: {
             title: opts.content.snippet.title,
-            duration: opts.content.contentDetails.duration.replace(/(PT|S)/g, '').replace(/[^0-9]+/g, ':'),
+            duration: moment.duration(opts.content.contentDetails.duration).asSeconds(),
             thumbnail: opts.content.snippet.thumbnails.default.url,
             progress:0
         },
