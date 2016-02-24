@@ -7,6 +7,7 @@ require('./tags/player.tag')
 require('./tags/result.tag')
 require('./tags/item.tag')
 require('./tags/video.tag')
+require('./tags/addFile.tag')
 var eventBus
 
 var domReady = function(callback) {

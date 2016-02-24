@@ -1,5 +1,3 @@
-- charger un fichier en local
 - design item
 - add drag and drop
-- fix current time d'une track
 - ajouter peer-to-peer

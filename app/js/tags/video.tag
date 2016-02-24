@@ -39,12 +39,12 @@
     })
 
     opts.eventBus.on('setSeekTimeVideo', (value) => {
-        videoPlayer.seekTo(videoPlayer.getDuration() * value / 100)
+        videoPlayer.seekTo(videoPlayer.getDuration())
     })
 
     function getSeek() {
         if (typeof videoPlayer.getCurrentTime === 'function')
-            opts.eventBus.trigger('getSeekTime', videoPlayer.getCurrentTime() * 100 / videoPlayer.getDuration())
+            opts.eventBus.trigger('getSeekTime', videoPlayer.getCurrentTime())
     }
     </script>
 </mm-video>

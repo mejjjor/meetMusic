@@ -1,7 +1,6 @@
 <mm-search>
     <div id="search" type="text" onpaste="{ edit }" onkeyup="{ edit }">
-        <label for='inputFile'><i class="fa fa-plus-circle fa-2x"></i></label>
-        <input id='inputFile' type='file' multiple onchange="{ addFile }"></input>
+        <mm-addFile></mm-addFile>
     </div>
     <ul>
         <li each={ results }>
@@ -13,7 +12,6 @@
     var Completely = require('../vendors/complete.ly.1.0.1.min.js')
     var $ = require('jquery')
     var _ = require('lodash')
-    var jsmediatags = require("jsmediatags");
     var apiKey = 'AIzaSyDrc_XoIlz_HqMflR0CHHOyatGemqwgAvo'
     var suggest
 
@@ -45,11 +43,6 @@
                 break
             }
     })
-
-    addFile(e) {
-        console.log(e)
-        this.getFiles(_.values(e.srcElement.files));
-    }
 
     edit(e) {
         this.query = e.target.value
@@ -106,50 +99,6 @@
             });
         }
         return true
-    }
-
-    this.getFiles = function(files) {
-        for (let file of files) {
-            ((file) => {
-                jsmediatags.read(file, {
-                    onSuccess: (tag) => {
-                        var url = URL.createObjectURL(file)
-                        this.data = {
-                            track: {
-                                artist:tag.tags.artist,
-                                title: tag.tags.title,
-                                duration: "00:00",
-                                thumbnail: "/favicon.png",
-                                progress: 0
-                            },
-                            contributor: {
-                                name: "erik",
-                                thumbnail: "/favicon.png"
-                            },
-                            file:{
-                                url:url
-                            },
-                            status: {},
-                            play: function() {
-
-                                opts.eventBus.trigger('playMp3', url)
-                            },
-                            pause: function() {
-                                opts.eventBus.trigger('pauseMp3')
-                            },
-                            seekTime: function(value) {
-                                
-                                console.log('seekTime it !')
-                            }
-                        }
-                        opts.eventBus.trigger('addItem', this.data)
-                    },
-                    onError: function(error) {
-                        console.error(error.info);
-                    }
-                });
-            })(file);
-        }
     }
     </script>
 </mm-search>

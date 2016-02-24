@@ -36,7 +36,7 @@
             opts.eventBus.trigger('playVideo', opts.content.id.videoId)
         },
         pause: function() {
-            opts.eventBus.trigger('pauseVideo', opts.content.id.videoId)
+            opts.eventBus.trigger('pauseVideo')
         },
         seekTime:function(value){
             opts.eventBus.trigger('setSeekTimeVideo', value)

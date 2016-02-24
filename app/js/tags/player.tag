@@ -1,5 +1,5 @@
 <mm-player>
-    <audio id='mp3Player' ontimeupdate="{ timeUpdate }"></audio>
+    <audio id='mp3Player' ontimeupdate="{ timeUpdate }" onplaying='{ playAudio }'></audio>
     <ol id='playlist'>
         <li each={ playlist }>
             <mm-item content="{ item }"></mm-item>
@@ -29,7 +29,12 @@
     })
 
     timeUpdate(e) {
-        getCurrentItem().track.progress = mp3Player.currentTime
+        opts.eventBus.trigger('getSeekTime',mp3Player.currentTime)
+    }
+
+
+    playAudio(e) {
+        getCurrentItem().track.duration = Math.round(mp3Player.duration)
     }
 
     opts.eventBus.on('addItem', (data) => {
@@ -114,11 +119,12 @@
     })
 
     opts.eventBus.on('pauseMp3', () => {
-        //mp3Player.src = URL.createObjectURL(file)
         mp3Player.pause()
     })
 
-
+    opts.eventBus.on('seekMp3', (value) => {
+        mp3Player.currentTime = value
+    })
 
     var getId = (function() {
         var counter = 0
@@ -127,7 +133,7 @@
         }
     }())
 
-    var getCurrentItem = ()=> {
+    var getCurrentItem = () => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id === this.currentId)
                 return this.playlist[i].item
