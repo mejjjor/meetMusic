@@ -1,4 +1,4 @@
-- design item
-- add drag and drop
 - ajouter peer-to-peer
+- design item
 - personaliser contributor
+- bloc parametre

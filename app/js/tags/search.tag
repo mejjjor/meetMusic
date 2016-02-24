@@ -1,4 +1,4 @@
-<mm-search>
+<mm-search ondragover='{ dragover }' ondrop='{ drop }'>
     <div id="search" type="text" onpaste="{ edit }" onkeyup="{ edit }">
         <mm-addFile></mm-addFile>
     </div>
@@ -56,32 +56,9 @@
         if (this.query === "") {
             suggest.dropDown.style.visibility = 'hidden'
         } else {
-            var request = gapi.client.youtube.search.list({
-                part: "snippet",
-                type: "video",
-                q: encodeURIComponent(this.query).replace(/%20/g, "+"),
-                maxResults: 6
-            })
-            request.execute((response) => {
-                var ids = ""
-                var results = _.map(response.result.items, function(o) {
-                    ids += o.id.videoId + ","
-                    return {
-                        item: o
-                    }
-                })
-                ids = ids.slice(0, ids.length - 1)
-                var requestDetails = gapi.client.youtube.videos.list({
-                    part: "ContentDetails",
-                    id: ids
-                })
-                requestDetails.execute((response) => {
-                    for (var i = 0; i < response.result.items.length; i++) {
-                        results[i].item.contentDetails = response.result.items[i].contentDetails
-                    }
-                    this.results = results
-                    this.update()
-                })
+            opts.eventBus.trigger('youtubeSearch', this.query, 6, (results)=> {
+                this.results = results
+                this.update()
             })
 
             $.ajax({
@@ -100,5 +77,45 @@
         }
         return true
     }
+
+    dragover(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+    }
+    drop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        opts.eventBus.trigger('addFiles',_.values(e.dataTransfer.files))
+    }
+
+    opts.eventBus.on('youtubeSearch',function(query, nb, callback) {
+        var request = gapi.client.youtube.search.list({
+            part: "snippet",
+            type: "video",
+            q: encodeURIComponent(query).replace(/%20/g, "+"),
+            maxResults: nb
+        })
+        request.execute((response) => {
+            var ids = ""
+            var results = _.map(response.result.items, function(o) {
+                ids += o.id.videoId + ","
+                return {
+                    item: o
+                }
+            })
+            ids = ids.slice(0, ids.length - 1)
+            var requestDetails = gapi.client.youtube.videos.list({
+                part: "ContentDetails",
+                id: ids
+            })
+            requestDetails.execute((response) => {
+                for (var i = 0; i < response.result.items.length; i++) {
+                    results[i].item.contentDetails = response.result.items[i].contentDetails
+                }
+                callback(results)
+            })
+        })
+    })
     </script>
 </mm-search>

@@ -1,4 +1,4 @@
-<mm-player>
+<mm-player ondragover='{ dragover }' ondrop='{ drop }'>
     <audio id='mp3Player' ontimeupdate="{ timeUpdate }" onplaying='{ playAudio }'></audio>
     <ol id='playlist'>
         <li each={ playlist }>
@@ -8,7 +8,8 @@
     <script>
     'use strict'
 
-    var Sortable = require("sortablejs");
+    var Sortable = require("sortablejs")
+    var _ = require('lodash')
     this.playlist = []
     this.currentId = 0
     var mp3Player
@@ -29,12 +30,23 @@
     })
 
     timeUpdate(e) {
-        opts.eventBus.trigger('getSeekTime',mp3Player.currentTime)
+        opts.eventBus.trigger('getSeekTime', mp3Player.currentTime)
     }
 
 
     playAudio(e) {
         getCurrentItem().track.duration = Math.round(mp3Player.duration)
+    }
+
+    dragover(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+    }
+    drop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        opts.eventBus.trigger('addFiles',_.values(e.dataTransfer.files))
     }
 
     opts.eventBus.on('addItem', (data) => {
