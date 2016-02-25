@@ -1,3 +1,4 @@
+var SimpleWebRTC = require('./webrtc/simplewebrtc.js')
 var riot = require('riot')
 var $ = require('jquery')
 var _ = require('lodash')
@@ -15,6 +16,21 @@ var domReady = function(callback) {
 };
 
 domReady(function() {
+    var webrtc = new SimpleWebRTC({
+        // we don't do video
+        localVideoEl: '',
+        remoteVideosEl: '',
+        // dont ask for camera access
+        autoRequestMedia: false,
+        // dont negotiate media
+        receiveMedia: {
+            mandatory: {
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
+            }
+        }
+    });
+
     eventBus = riot.observable()
     riot.mount('*', { eventBus: eventBus })
 });
