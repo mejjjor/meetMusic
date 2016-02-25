@@ -1,5 +1,0 @@
-- ajouter peer-to-peer
-- design item
-- personaliser contributor
-- bloc parametre
-- local storage de la playlist et des infos contributor
