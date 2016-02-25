@@ -32,6 +32,7 @@
         "pleeease": "^4.0.4",
         "riot": "^2.3.15",
         "riotify": "^1.0.0",
+        "express": "3.x.x",
         "watchify": "^3.7.0"
     },
     "dependencies": {

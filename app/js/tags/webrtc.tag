@@ -1,7 +1,6 @@
 <mm-webrtc>
     <input type='text' onkeyup='{ edit }'></input>
     <button onclick='{ createRoom }'>create</button>
-    <button onclick='{ joinRoom }'>join</button>
     <script>
     'use strict'
     var SimpleWebRTC = require('../webrtc/simplewebrtc.js')
@@ -26,12 +25,6 @@
         this.room = e.target.value
     }
 
-    joinRoom(e) {
-        webrtc.joinRoom(this.room, (err, res) => {
-            console.log('joined', this.room, err, res)
-        });
-    }
-
     createRoom(e) {
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
         webrtc.createRoom(val, function(err, name) {
@@ -48,10 +41,10 @@
     }
 
     opts.eventBus.on('addMp3', (data, file) => {
-        var sender = this.peer.sendFile(file)
         data.file.name = file.name
         data.file.url = ''
         this.peer.sendData(data)
+        var sender = this.peer.sendFile(file)
     })
 
     webrtc.on('createdPeer', (peer) => {
@@ -67,7 +60,7 @@
             receiver.on('progress', function(bytesReceived) {
                 //on progress
             })
-            receiver.on('receivedFile', (file, metadata)=> {
+            receiver.on('receivedFile', (file, metadata) => {
                 console.log('received file', metadata.name, metadata.size)
 
                 opts.eventBus.trigger('addFileToItem', file, metadata)
@@ -91,5 +84,10 @@
     webrtc.on('connectivityError', function(peer) {
         console.log('remote fail with peer: ' + peer)
     })
+
+    if (this.room)
+        webrtc.joinRoom(this.room, (err, res) => {
+            console.log('joined', this.room, err, res)
+        });
     </script>
 </mm-webrtc>
