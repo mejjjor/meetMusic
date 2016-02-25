@@ -8,6 +8,11 @@
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
 
+        opts.eventBus.on('addFunctions',(data,url)=>{
+            data.file.url = url
+            addFunctions(data,url)
+        })
+
         opts.eventBus.on('addFiles', (files) => {
             for (let file of files) {
                 ((file) => {
@@ -38,18 +43,12 @@
                                 file: {
                                     url: url
                                 },
-                                status: {},
-                                play: function() {
-                                    opts.eventBus.trigger('playMp3', url)
-                                },
-                                pause: function() {
-                                    opts.eventBus.trigger('pauseMp3')
-                                },
-                                seekTime: function(value) {
-                                    opts.eventBus.trigger('seekMp3', value)
-                                }
+                                status: {}
                             }
+                            addFunctions(this.data,url)
                             opts.eventBus.trigger('addItem', this.data)
+                            console.log('addItem')
+                            opts.eventBus.trigger('addMp3', this.data, file)
 
                             this.update()
                         })
@@ -61,8 +60,25 @@
         })
     })
 
+
     addFile(e) {
         opts.eventBus.trigger('addFiles', _.values(e.srcElement.files))
     }
+
+    function addFunctions(data,url) {
+        data.play = function() {
+            opts.eventBus.trigger('playMp3', url)
+        }
+        data.pause= function() {
+            opts.eventBus.trigger('pauseMp3')
+        }
+        data.seekTime= function(value) {
+            opts.eventBus.trigger('seekMp3', value)
+        }
+
+        return data
+    }
+
+
     </script>
 </mm-addFile>

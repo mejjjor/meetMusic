@@ -46,7 +46,7 @@
     drop(e) {
         e.preventDefault();
         e.stopPropagation();
-        opts.eventBus.trigger('addFiles',_.values(e.dataTransfer.files))
+        opts.eventBus.trigger('addFiles', _.values(e.dataTransfer.files))
     }
 
     opts.eventBus.on('addItem', (data) => {
@@ -57,6 +57,15 @@
             item: data
         })
         this.update()
+    })
+
+    opts.eventBus.on('addFileToItem', (file, data) => {
+        console.log(data)
+        for (var i = 0; i < this.playlist.length; i++) {
+            if (this.playlist[i].item.file.name == data.name)
+                opts.eventBus.trigger('addFunctions', this.playlist[i].item, URL.createObjectURL(file))
+            console.log(this.playlist[i])
+        }
     })
 
     opts.eventBus.on('addPlayItem', (data) => {

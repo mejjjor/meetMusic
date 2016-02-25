@@ -297,11 +297,11 @@ Peer.prototype.sendData = function (data) {
         console.log("on open, sending")
         dc.send(JSON.stringify(data));
     };
-    // override onclose
-    dc.onclose = function () {
-        console.log('sender received transfer');
-        //sender.emit('complete');
-    };
+    // // override onclose
+    // dc.onclose = function () {
+    //     console.log('sender received data transfer');
+    //     //sender.emit('complete');
+    // };
     
 };
 
