@@ -4,6 +4,7 @@
     <script>
     'use strict'
     var id3 = require('id3js')
+    var _ = require('lodash')
 
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
@@ -62,7 +63,7 @@
 
 
     addFile(e) {
-        opts.eventBus.trigger('addFiles', _.values(e.srcElement.files))
+        opts.eventBus.trigger('addFiles', _.values(e.target.files))
     }
 
     function addFunctions(data,url) {

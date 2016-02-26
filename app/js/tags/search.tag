@@ -9,7 +9,7 @@
     </ul>
     <script>
     'use strict'
-    var Completely = require('../vendors/complete.ly.1.0.1.min.js')
+    var Completely = require('../vendors/complete.ly.js')
     var $ = require('jquery')
     var _ = require('lodash')
     var apiKey = 'AIzaSyDrc_XoIlz_HqMflR0CHHOyatGemqwgAvo'
@@ -26,7 +26,7 @@
         }
         suggest.input.addEventListener('focus', function(e) {
             suggest.dropDown.style.visibility = 'visible';
-            suggest.hint.style.visibility = 'visible';
+            suggest.hint.style.visibility = 'hidden';
         })
 
         suggest.input.addEventListener('blur', function(e) {
@@ -56,7 +56,7 @@
         if (this.query === "") {
             suggest.dropDown.style.visibility = 'hidden'
         } else {
-            opts.eventBus.trigger('youtubeSearch', this.query, 6, (results)=> {
+            opts.eventBus.trigger('youtubeSearch', this.query, 6, (results) => {
                 this.results = results
                 this.update()
             })
@@ -70,7 +70,7 @@
                         return o[0].substring(l)
                     })
                     suggest.dropDown.style.visibility = 'visible'
-                    suggest.hint.style.visibility = 'visible'
+                    suggest.hint.style.visibility = 'hidden';
                     suggest.repaint()
                 }
             });
@@ -86,10 +86,10 @@
     drop(e) {
         e.preventDefault();
         e.stopPropagation();
-        opts.eventBus.trigger('addFiles',_.values(e.dataTransfer.files))
+        opts.eventBus.trigger('addFiles', _.values(e.dataTransfer.files))
     }
 
-    opts.eventBus.on('youtubeSearch',function(query, nb, callback) {
+    opts.eventBus.on('youtubeSearch', function(query, nb, callback) {
         var request = gapi.client.youtube.search.list({
             part: "snippet",
             type: "video",

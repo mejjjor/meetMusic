@@ -1,5 +1,14 @@
-- ajouter peer-to-peer
-- design item
-- personaliser contributor
+- mettre completly en non minifié
+- faciliter la création d'une room
+- ajouter peer-to-peer pour youtube
+- orienter les échanges
+- partage de l'ordre de la playlist
+- envoyer plusieurs fichiers
 - bloc parametre
+- générer qrcode
+- design item
+- design playlist
+- personaliser contributor
+- faire les blocs modulables
 - local storage de la playlist et des infos contributor
+- fix : ne lis pas les fichiers sur mobile
