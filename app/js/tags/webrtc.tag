@@ -97,9 +97,15 @@
             ownerPeer.sendData(data)
     })
 
-    opts.eventBus.on('updateContributors', (playlist) => {
-        for (var peer of peers)
-            peer.sendData({
+    opts.eventBus.on('updatePlaylist', (playlist) => {
+        if (isOwner)
+            for (var peer of peers)
+                peer.sendData({
+                    playlist: playlist,
+                    type: 'update'
+                })
+        else
+            ownerPeer.sendData({
                 playlist: playlist,
                 type: 'update'
             })
@@ -113,6 +119,12 @@
                     type: 'play'
                 })
             }
+            item.item.pause = function() {
+                ownerPeer.sendData({
+                    type: 'pause'
+                })
+            }
+
         }
     })
 
@@ -166,8 +178,15 @@
                     break
                 case 'update':
                     opts.eventBus.trigger('setPlaylist', metadata.playlist)
+                    if (isOwner)
+                        opts.eventBus.trigger('updatePlaylist', metadata.playlist)
+                    break
                 case 'play':
                     opts.eventBus.trigger('playId', metadata.id)
+                    break
+                case 'pause':
+                    opts.eventBus.trigger('pauseCurrent')
+                    break
             }
         })
     })

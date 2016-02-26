@@ -25,6 +25,7 @@
             onEnd: (evt) => {
                 let el = this.playlist[evt.oldIndex]
                 this.playlist.splice(evt.newIndex, 0, this.playlist.splice(evt.oldIndex, 1)[0])
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
             }
         });
     })
@@ -58,7 +59,7 @@
         })
 
         //send playlist to others (just item, no file)
-        opts.eventBus.trigger('updateContributors', this.playlist)
+        opts.eventBus.trigger('updatePlaylist', this.playlist)
         this.update()
     })
 
@@ -164,6 +165,12 @@
                 item.item.play(id)
                 break
             }
+    })
+
+    opts.eventBus.on('pauseCurrent', () => {
+        getCurrentItem().pause()
+        data.status.play = 'show'
+        data.status.pause = 'hide'
     })
 
     var getId = (function() {
