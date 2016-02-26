@@ -31,7 +31,6 @@
     })
 
     add(e) {
-        opts.eventBus.trigger('addItem', this.data)
         opts.eventBus.trigger('removeResult', this.data.track.title)
         opts.eventBus.trigger('addVideo', this.data)
     }

@@ -56,7 +56,9 @@
         this.playlist.push({
             item: data
         })
+
         //send playlist to others (just item, no file)
+        opts.eventBus.trigger('updateContributors', this.playlist)
         this.update()
     })
 
@@ -146,6 +148,22 @@
 
     opts.eventBus.on('seekMp3', (value) => {
         mp3Player.currentTime = value
+    })
+
+    opts.eventBus.on('setPlaylist', (playlist) => {
+        this.playlist = playlist
+        opts.eventBus.trigger('addRemoteFunctions', this.playlist)
+        this.update()
+    })
+
+    opts.eventBus.on('playId', (id) => {
+        for (var item of this.playlist)
+            if (item.item.id === id) {
+                opts.eventBus.trigger('stopOthers', id)
+                opts.eventBus.trigger('setCurrent', id)
+                item.item.play(id)
+                break
+            }
     })
 
     var getId = (function() {

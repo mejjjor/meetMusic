@@ -42,15 +42,12 @@
                                     thumbnail: "/favicon.png"
                                 },
                                 file: {
-                                    url: url
+                                    url: url,
+                                    name: file.name
                                 },
                                 status: {}
                             }
                             addFunctions(this.data,url)
-                            //add item only if it's owner
-                            opts.eventBus.trigger('addItem', this.data)
-                            console.log('addItem')
-                            //else send mp3
                             opts.eventBus.trigger('addMp3', this.data, file)
 
                             this.update()
@@ -69,7 +66,7 @@
     }
 
     function addFunctions(data,url) {
-        data.play = function() {
+        data.play = function(id) {
             opts.eventBus.trigger('playMp3', url)
         }
         data.pause= function() {

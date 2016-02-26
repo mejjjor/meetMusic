@@ -124,7 +124,7 @@
     })
 
     function addFunctions(data,videoId) {
-        data.play = function() {
+        data.play = function(id) {
             opts.eventBus.trigger('playVideo', videoId)
         }
         data.pause = function() {

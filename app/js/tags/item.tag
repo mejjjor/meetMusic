@@ -22,19 +22,27 @@
     })
 
     play(e) {
-        opts.eventBus.trigger('stopOthers', opts.content.id)
-        opts.eventBus.trigger('setCurrent', opts.content.id)
-        opts.content.play()
+        if (global.isOwner) {
+            opts.eventBus.trigger('stopOthers', opts.content.id)
+            opts.eventBus.trigger('setCurrent', opts.content.id)
+        }
+        opts.content.play(opts.content.id)
     }
 
     pause(e) {
-        opts.content.status.play = 'show'
-        opts.content.status.pause = 'hide'
+        if (global.isOwner) {
+            opts.content.status.play = 'show'
+            opts.content.status.pause = 'hide'
+        }
         opts.content.pause()
     }
 
     next(e) {
-        opts.eventBus.trigger('playNext')
+        if (global.isOwner) {
+            opts.eventBus.trigger('playNext')
+        } else {
+            //send data play next
+        }
     }
 
     seekTime(e) {

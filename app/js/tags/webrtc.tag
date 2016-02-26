@@ -1,13 +1,35 @@
 <mm-webrtc>
-    <h3>Create a playlist or join one</h3>
-    <input type='text' onkeyup='{ edit }' placeholder='playlist name'></input>
-    <button onclick='{ createRoom }'>Create</button>
-    <button onclick='{ joinRoom }'>Join</button>
+    <div>
+        <span>Owner : { isOwner }</span>
+        <button onclick='{ reset }'>reset</button>
+    </div>
+    <div>
+        <h3>Create a playlist or join one</h3>
+        <input type='text' onkeyup='{ edit }' placeholder='playlist name'></input>
+        <button onclick='{ createRoom }'>Create</button>
+        <button onclick='{ joinRoom }'>Join</button>
+    </div>
     <script>
     'use strict'
     var SimpleWebRTC = require('../webrtc/simplewebrtc.js')
     this.room = location.search && location.search.split('?')[1]
+    var isOwner = ''
+    var ownerId = ''
+    var ownerPeer
+    var peers = []
 
+    this.on('mount', () => {
+        if (this.room) {
+            this.root.childNodes[2].style.display = 'none'
+            webrtc.joinRoom(this.room, (err, res) => {
+                console.log('joined', this.room, err, res)
+                isOwner = false
+                global.isOwner = false
+                this.isOwner = 'false'
+                this.update()
+            });
+        }
+    })
     var webrtc = new SimpleWebRTC({
         // we don't do video
         localVideoEl: '',
@@ -28,11 +50,16 @@
     }
 
     createRoom(e) {
-        this.root.style.display = 'none'
+        this.root.childNodes[2].style.display = 'none'
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
-        webrtc.createRoom(val, function(err, name) {
+        webrtc.createRoom(val, (err, name) => {
             console.log(' create room cb', arguments)
             var newUrl = location.pathname + '?' + name
+            isOwner = true
+            global.isOwner = true
+            this.isOwner = 'true'
+            ownerId = webrtc.connection.connection.id
+            this.update()
             if (!err) {
                 history.replaceState({
                     foo: 'bar'
@@ -47,23 +74,55 @@
         location.search = this.room
     }
 
+    reset(e) {
+        location.search = ''
+    }
+
     opts.eventBus.on('addMp3', (data, file) => {
-        data.file.name = file.name
-        data.file.url = ''
         data.type = 'mp3'
-        this.peer.sendData(data)
-        var sender = this.peer.sendFile(file)
+        if (isOwner)
+            opts.eventBus.trigger('addItem', data)
+        else {
+            data.file.url = ''
+            ownerPeer.sendData(data)
+            var sender = ownerPeer.sendFile(file)
+        }
     })
 
     opts.eventBus.on('addVideo', (data) => {
         data.type = 'video'
-        this.peer.sendData(data)
-        console.log('send data video')
+        if (isOwner)
+            opts.eventBus.trigger('addItem', this.data)
+        else
+            ownerPeer.sendData(data)
+    })
+
+    opts.eventBus.on('updateContributors', (playlist) => {
+        for (var peer of peers)
+            peer.sendData({
+                playlist: playlist,
+                type: 'update'
+            })
+    })
+
+    opts.eventBus.on('addRemoteFunctions', (playlist) => {
+        for (var item of playlist) {
+            item.item.play = function(id) {
+                ownerPeer.sendData({
+                    id: id,
+                    type: 'play'
+                })
+            }
+        }
     })
 
     webrtc.on('createdPeer', (peer) => {
+        console.log('me: ', webrtc.connection.connection.id)
         console.log('createdPeer: ', peer.id)
-        this.peer = peer
+        peer.sendData({
+            ownerId: ownerId,
+            type: 'init'
+        })
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
@@ -83,19 +142,35 @@
         })
         peer.on('dataTransfer', (metadata) => {
             console.log('incoming datatransfer', metadata)
-            if (metadata.type == 'mp3') {
-                opts.eventBus.trigger('addItem', metadata)
-                console.log('rtc mp3')
-            }
-            if (metadata.type == 'video') {
-                opts.eventBus.trigger('addVideoFunctions', metadata, (data)=> {
-                    opts.eventBus.trigger('addItem', data)
-                    console.log('rtc video')
-                })
+            console.log('from', peer)
+            switch (metadata.type) {
+                case 'init':
+                    if (isOwner)
+                        peers.push(peer)
+                    if (ownerId == '') {
+                        ownerId = metadata.ownerId
+                    }
+                    if (metadata.ownerId != '' && ownerId != metadata.ownerId) {
+                        console.error('OWNER CONFLICT !! you: ' + webrtc.connection.connection.id + ' with owner: ' + ownerId + ' are in conflict with owner: ' + metadata.ownerId + ' from peer: ' + peer.id)
+                    } else if (peer.id == ownerId)
+                        ownerPeer = peer
+                    console.log('ownerPeer ', ownerPeer)
+                    break
+                case 'mp3':
+                    opts.eventBus.trigger('addItem', metadata)
+                    break
+                case 'video':
+                    opts.eventBus.trigger('addVideoFunctions', metadata, (data) => {
+                        opts.eventBus.trigger('addItem', data)
+                    })
+                    break
+                case 'update':
+                    opts.eventBus.trigger('setPlaylist', metadata.playlist)
+                case 'play':
+                    opts.eventBus.trigger('playId', metadata.id)
             }
         })
     })
-
 
     // local p2p/ice failure
     webrtc.on('iceFailed', function(peer) {
@@ -106,12 +181,5 @@
     webrtc.on('connectivityError', function(peer) {
         console.log('remote fail with peer: ' + peer)
     })
-
-    if (this.room) {
-        this.root.style.display = 'none'
-        webrtc.joinRoom(this.room, (err, res) => {
-            console.log('joined', this.room, err, res)
-        });
-    }
     </script>
 </mm-webrtc>
