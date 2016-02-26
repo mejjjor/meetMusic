@@ -1,5 +1,3 @@
-- mettre completly en non minifié
-- faciliter la création d'une room
 - ajouter peer-to-peer pour youtube
 - orienter les échanges
 - partage de l'ordre de la playlist

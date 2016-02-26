@@ -1,6 +1,8 @@
 <mm-webrtc>
-    <input type='text' onkeyup='{ edit }'></input>
-    <button onclick='{ createRoom }'>create</button>
+    <h3>Create a playlist or join one</h3>
+    <input type='text' onkeyup='{ edit }' placeholder='playlist name'></input>
+    <button onclick='{ createRoom }'>Create</button>
+    <button onclick='{ joinRoom }'>Join</button>
     <script>
     'use strict'
     var SimpleWebRTC = require('../webrtc/simplewebrtc.js')
@@ -26,6 +28,7 @@
     }
 
     createRoom(e) {
+        this.root.style.display = 'none'
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
         webrtc.createRoom(val, function(err, name) {
             console.log(' create room cb', arguments)
@@ -38,6 +41,10 @@
                 console.log(err)
             }
         });
+    }
+
+    joinRoom(e) {
+        location.search = this.room
     }
 
     opts.eventBus.on('addMp3', (data, file) => {
@@ -85,9 +92,11 @@
         console.log('remote fail with peer: ' + peer)
     })
 
-    if (this.room)
+    if (this.room) {
+        this.root.style.display = 'none'
         webrtc.joinRoom(this.room, (err, res) => {
             console.log('joined', this.room, err, res)
         });
+    }
     </script>
 </mm-webrtc>
