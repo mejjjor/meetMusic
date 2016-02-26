@@ -89,6 +89,11 @@
         opts.eventBus.trigger('addFiles', _.values(e.dataTransfer.files))
     }
 
+    opts.eventBus.on('addVideoFunctions', (data, callback) => {
+        addFunctions(data,data.video.id)
+        callback(data)
+    })
+
     opts.eventBus.on('youtubeSearch', function(query, nb, callback) {
         var request = gapi.client.youtube.search.list({
             part: "snippet",
@@ -117,5 +122,17 @@
             })
         })
     })
+
+    function addFunctions(data,videoId) {
+        data.play = function() {
+            opts.eventBus.trigger('playVideo', videoId)
+        }
+        data.pause = function() {
+            opts.eventBus.trigger('pauseVideo')
+        }
+        data.seekTime = function(value) {
+            opts.eventBus.trigger('setSeekTimeVideo', value)
+        }
+    }
     </script>
 </mm-search>

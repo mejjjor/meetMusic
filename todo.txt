@@ -1,4 +1,3 @@
-- ajouter peer-to-peer pour youtube
 - orienter les échanges
 - partage de l'ordre de la playlist
 - envoyer plusieurs fichiers
@@ -6,6 +5,7 @@
 - générer qrcode
 - design item
 - design playlist
+- move item par le coté
 - personaliser contributor
 - faire les blocs modulables
 - local storage de la playlist et des infos contributor

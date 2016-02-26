@@ -9,7 +9,7 @@
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
 
-        opts.eventBus.on('addFunctions',(data,url)=>{
+        opts.eventBus.on('addMp3Functions',(data,url)=>{
             data.file.url = url
             addFunctions(data,url)
         })
@@ -47,8 +47,10 @@
                                 status: {}
                             }
                             addFunctions(this.data,url)
+                            //add item only if it's owner
                             opts.eventBus.trigger('addItem', this.data)
                             console.log('addItem')
+                            //else send mp3
                             opts.eventBus.trigger('addMp3', this.data, file)
 
                             this.update()

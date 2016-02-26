@@ -50,8 +50,15 @@
     opts.eventBus.on('addMp3', (data, file) => {
         data.file.name = file.name
         data.file.url = ''
+        data.type = 'mp3'
         this.peer.sendData(data)
         var sender = this.peer.sendFile(file)
+    })
+
+    opts.eventBus.on('addVideo', (data) => {
+        data.type = 'video'
+        this.peer.sendData(data)
+        console.log('send data video')
     })
 
     webrtc.on('createdPeer', (peer) => {
@@ -76,8 +83,16 @@
         })
         peer.on('dataTransfer', (metadata) => {
             console.log('incoming datatransfer', metadata)
-            opts.eventBus.trigger('addItem', metadata)
-            this.update()
+            if (metadata.type == 'mp3') {
+                opts.eventBus.trigger('addItem', metadata)
+                console.log('rtc mp3')
+            }
+            if (metadata.type == 'video') {
+                opts.eventBus.trigger('addVideoFunctions', metadata, (data)=> {
+                    opts.eventBus.trigger('addItem', data)
+                    console.log('rtc video')
+                })
+            }
         })
     })
 

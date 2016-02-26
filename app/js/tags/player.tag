@@ -50,12 +50,13 @@
     }
 
     opts.eventBus.on('addItem', (data) => {
-        data.id = getId()
+        data.id = getId.next()
         data.status.play = 'show'
         data.status.pause = 'hide'
         this.playlist.push({
             item: data
         })
+        //send playlist to others (just item, no file)
         this.update()
     })
 
@@ -63,13 +64,13 @@
         console.log(data)
         for (var i = 0; i < this.playlist.length; i++) {
             if (this.playlist[i].item.file.name == data.name)
-                opts.eventBus.trigger('addFunctions', this.playlist[i].item, URL.createObjectURL(file))
+                opts.eventBus.trigger('addMp3Functions', this.playlist[i].item, URL.createObjectURL(file))
             console.log(this.playlist[i])
         }
     })
 
     opts.eventBus.on('addPlayItem', (data) => {
-        data.id = getId()
+        data.id = getId.next()
         opts.eventBus.trigger('stopOthers', data.id)
         this.playlist.push({
             item: data
@@ -149,8 +150,13 @@
 
     var getId = (function() {
         var counter = 0
-        return function() {
-            return counter++
+        return {
+            next: function() {
+                return counter++
+            },
+            set: function(val) {
+                counter = val
+            }
         }
     }())
 
