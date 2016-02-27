@@ -126,6 +126,18 @@
         this.currentId = id
     })
 
+    opts.eventBus.on('deleteItem', (id) => {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.id == id) {
+                if (this.playlist[i].item.status.play == 'hide')
+                    opts.eventBus.trigger('pauseCurrent')
+                this.playlist.splice(i, 1)
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
+                break
+            }
+        this.update()
+    })
+
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {

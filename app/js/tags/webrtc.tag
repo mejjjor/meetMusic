@@ -92,7 +92,7 @@
     opts.eventBus.on('addVideo', (data) => {
         data.type = 'video'
         if (isOwner)
-            opts.eventBus.trigger('addItem', this.data)
+            opts.eventBus.trigger('addItem', data)
         else
             ownerPeer.sendData(data)
     })
@@ -132,14 +132,6 @@
             }
 
         }
-    })
-
-    opts.eventBus.on('addVideo', (data) => {
-        data.type = 'video'
-        if (isOwner)
-            opts.eventBus.trigger('addItem', this.data)
-        else
-            ownerPeer.sendData(data)
     })
 
     webrtc.on('createdPeer', (peer) => {

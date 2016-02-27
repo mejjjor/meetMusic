@@ -76,7 +76,7 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
 
 }, '{ }');
 
-riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <img riot-src="{opts.content.track.thumbnail}"> <div> <span>{opts.content.track.artist}</span><span> {opts.content.track.title}</span> <span>{opts.content.contributor.name}</span> </div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div>', '', '', function(opts) {
+riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <img riot-src="{opts.content.track.thumbnail}"> <div> <span>{opts.content.track.artist}</span><span> {opts.content.track.title}</span> <span>{opts.content.contributor.name}</span> </div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> <i class="fa fa-times-circle fa-2x" onclick="{delete}"></i> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div>', '', '', function(opts) {
     'use strict'
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
@@ -111,6 +111,10 @@ riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {
 
     this.seekTime = function(e) {
         opts.content.seekTime(e.srcElement.value);
+    }.bind(this)
+
+    this.delete = function(e){
+        opts.eventBus.trigger('deleteItem',opts.content.id)
     }.bind(this)
 }, '{ }');
 
@@ -231,6 +235,18 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
 
     opts.eventBus.on('setCurrent', (id) => {
         this.currentId = id
+    })
+
+    opts.eventBus.on('deleteItem', (id) => {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.id == id) {
+                if (this.playlist[i].item.status.play == 'hide')
+                    opts.eventBus.trigger('pauseCurrent')
+                this.playlist.splice(i, 1)
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
+                break
+            }
+        this.update()
     })
 
     opts.eventBus.on('getSeekTime', (value) => {
@@ -380,6 +396,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
         });
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
+            queryYoutube(text,false)
         }
         suggest.input.addEventListener('focus', function(e) {
             suggest.dropDown.style.visibility = 'visible';
@@ -413,24 +430,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
         if (this.query === "") {
             suggest.dropDown.style.visibility = 'hidden'
         } else {
-            opts.eventBus.trigger('youtubeSearch', this.query, 6, (results) => {
-                this.results = results
-                this.update()
-            })
-
-            $.ajax({
-                url: "http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q=" + this.query + "&key=" + apiKey + "&format=5&alt=json&callback=?",
-                dataType: 'jsonp',
-                success: function(data, textStatus, request) {
-                    var l = data[0].length
-                    suggest.options = _.map(data[1], function(o) {
-                        return o[0].substring(l)
-                    })
-                    suggest.dropDown.style.visibility = 'visible'
-                    suggest.hint.style.visibility = 'hidden';
-                    suggest.repaint()
-                }
-            });
+            queryYoutube(this.query,true)
         }
         return true
     }.bind(this)
@@ -447,7 +447,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
     }.bind(this)
 
     opts.eventBus.on('addVideoFunctions', (data, callback) => {
-        addFunctions(data,data.video.id)
+        addFunctions(data, data.video.id)
         callback(data)
     })
 
@@ -480,7 +480,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
         })
     })
 
-    function addFunctions(data,videoId) {
+    function addFunctions(data, videoId) {
         data.play = function(id) {
             opts.eventBus.trigger('playVideo', videoId)
         }
@@ -490,6 +490,30 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
         data.seekTime = function(value) {
             opts.eventBus.trigger('setSeekTimeVideo', value)
         }
+    }
+
+    var queryYoutube = (query,showDropDown) => {
+        opts.eventBus.trigger('youtubeSearch', query, 6, (results) => {
+            this.results = results
+            this.update()
+        })
+
+        $.ajax({
+            url: "http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q=" + query + "&key=" + apiKey + "&format=5&alt=json&callback=?",
+            dataType: 'jsonp',
+            success: function(data, textStatus, request) {
+                var l = data[0].length
+                suggest.options = _.map(data[1], function(o) {
+                    return o[0].substring(l)
+                })
+                if(showDropDown)
+                suggest.dropDown.style.visibility = 'visible'
+                else
+                suggest.dropDown.style.visibility = 'hidden'
+
+                suggest.repaint()
+            }
+        })
     }
 }, '{ }');
 
@@ -622,7 +646,7 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
     opts.eventBus.on('addVideo', (data) => {
         data.type = 'video'
         if (isOwner)
-            opts.eventBus.trigger('addItem', this.data)
+            opts.eventBus.trigger('addItem', data)
         else
             ownerPeer.sendData(data)
     })
@@ -662,14 +686,6 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
             }
 
         }
-    })
-
-    opts.eventBus.on('addVideo', (data) => {
-        data.type = 'video'
-        if (isOwner)
-            opts.eventBus.trigger('addItem', this.data)
-        else
-            ownerPeer.sendData(data)
     })
 
     webrtc.on('createdPeer', (peer) => {

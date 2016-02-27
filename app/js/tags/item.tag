@@ -8,6 +8,7 @@
             <span>{ opts.content.contributor.name }</span>
         </div>
         <img src="{ opts.content.contributor.thumbnail }" class="img-circle" />
+        <i class="fa fa-times-circle fa-2x" onclick="{ delete }"></i>
     </div>
     <div class='{ opts.content.status.pause }'>
         <!-- <i class="fa fa-forward fa-2x { opts.content.status.pause }" onclick="{ next }"></i> -->
@@ -50,6 +51,10 @@
 
     seekTime(e) {
         opts.content.seekTime(e.srcElement.value);
+    }
+
+    delete(e){
+        opts.eventBus.trigger('deleteItem',opts.content.id)
     }
     </script>
 </mm-item>

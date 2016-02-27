@@ -23,6 +23,7 @@
         });
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
+            queryYoutube(text,false)
         }
         suggest.input.addEventListener('focus', function(e) {
             suggest.dropDown.style.visibility = 'visible';
@@ -56,24 +57,7 @@
         if (this.query === "") {
             suggest.dropDown.style.visibility = 'hidden'
         } else {
-            opts.eventBus.trigger('youtubeSearch', this.query, 6, (results) => {
-                this.results = results
-                this.update()
-            })
-
-            $.ajax({
-                url: "http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q=" + this.query + "&key=" + apiKey + "&format=5&alt=json&callback=?",
-                dataType: 'jsonp',
-                success: function(data, textStatus, request) {
-                    var l = data[0].length
-                    suggest.options = _.map(data[1], function(o) {
-                        return o[0].substring(l)
-                    })
-                    suggest.dropDown.style.visibility = 'visible'
-                    suggest.hint.style.visibility = 'hidden';
-                    suggest.repaint()
-                }
-            });
+            queryYoutube(this.query,true)
         }
         return true
     }
@@ -90,7 +74,7 @@
     }
 
     opts.eventBus.on('addVideoFunctions', (data, callback) => {
-        addFunctions(data,data.video.id)
+        addFunctions(data, data.video.id)
         callback(data)
     })
 
@@ -123,7 +107,7 @@
         })
     })
 
-    function addFunctions(data,videoId) {
+    function addFunctions(data, videoId) {
         data.play = function(id) {
             opts.eventBus.trigger('playVideo', videoId)
         }
@@ -133,6 +117,31 @@
         data.seekTime = function(value) {
             opts.eventBus.trigger('setSeekTimeVideo', value)
         }
+    }
+
+    var queryYoutube = (query,showDropDown) => {
+        opts.eventBus.trigger('youtubeSearch', query, 6, (results) => {
+            this.results = results
+            this.update()
+        })
+
+        $.ajax({
+            url: "http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q=" + query + "&key=" + apiKey + "&format=5&alt=json&callback=?",
+            dataType: 'jsonp',
+            success: function(data, textStatus, request) {
+                var l = data[0].length
+                suggest.options = _.map(data[1], function(o) {
+                    return o[0].substring(l)
+                })
+                if(showDropDown)
+                suggest.dropDown.style.visibility = 'visible'
+                else
+                suggest.dropDown.style.visibility = 'hidden'
+
+                //suggest.hint.style.visibility = 'hidden';
+                suggest.repaint()
+            }
+        })
     }
     </script>
 </mm-search>
