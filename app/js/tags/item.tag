@@ -23,12 +23,12 @@
     })
 
     play(e) {
+        opts.content.play(opts.content.id)
         if (global.isOwner) {
             opts.eventBus.trigger('stopOthers', opts.content.id)
             opts.eventBus.trigger('setCurrent', opts.content.id)
             opts.eventBus.trigger('updateItems', this.playlist)
         }
-        opts.content.play(opts.content.id)
     }
 
     pause(e) {

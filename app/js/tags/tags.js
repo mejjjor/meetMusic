@@ -83,12 +83,12 @@ riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {
     })
 
     this.play = function(e) {
+        opts.content.play(opts.content.id)
         if (global.isOwner) {
             opts.eventBus.trigger('stopOthers', opts.content.id)
             opts.eventBus.trigger('setCurrent', opts.content.id)
             opts.eventBus.trigger('updateItems', this.playlist)
         }
-        opts.content.play(opts.content.id)
     }.bind(this)
 
     this.pause = function(e) {
