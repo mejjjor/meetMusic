@@ -197,10 +197,7 @@
                     })
                     break
                 case 'update':
-                    if (isOwner)
-                        opts.eventBus.trigger('updatePlaylist', metadata.playlist)
-                    else
-                        opts.eventBus.trigger('setPlaylist', metadata.playlist)
+                    opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     break
                 case 'play':
                     opts.eventBus.trigger('playId', metadata.id)
@@ -208,8 +205,8 @@
                 case 'pause':
                     opts.eventBus.trigger('pauseCurrent')
                     break
-                    case 'seek':
-                    opts.eventBus.trigger('seekCurrent',metadata.value)
+                case 'seek':
+                    opts.eventBus.trigger('seekCurrent', metadata.value)
                     break
             }
         })

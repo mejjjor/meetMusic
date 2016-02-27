@@ -1,8 +1,8 @@
-- bloc parametre
-- générer qrcode
 - design item
 - afficher progression du transfert
 - design playlist
+- bloc parametre
+- générer qrcode
 - move item par le coté
 - personaliser contributor
 - faire les blocs modulables

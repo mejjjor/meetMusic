@@ -260,8 +260,21 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     })
 
     opts.eventBus.on('setPlaylist', (playlist) => {
-        this.playlist = playlist
-        opts.eventBus.trigger('addRemoteFunctions', this.playlist)
+
+        if (global.isOwner) {
+            var newPlaylist = []
+            for (var item of playlist)
+                for (var item2 of this.playlist)
+                    if (item2.item.id == item.item.id) {
+                        newPlaylist.push(item2)
+                        break
+                    }
+            this.playlist = newPlaylist
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+        } else {
+            this.playlist = playlist
+            opts.eventBus.trigger('addRemoteFunctions', this.playlist)
+        }
         this.update()
     })
 
@@ -714,10 +727,7 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                     })
                     break
                 case 'update':
-                    if (isOwner)
-                        opts.eventBus.trigger('updatePlaylist', metadata.playlist)
-                    else
-                        opts.eventBus.trigger('setPlaylist', metadata.playlist)
+                    opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     break
                 case 'play':
                     opts.eventBus.trigger('playId', metadata.id)
@@ -725,8 +735,8 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                 case 'pause':
                     opts.eventBus.trigger('pauseCurrent')
                     break
-                    case 'seek':
-                    opts.eventBus.trigger('seekCurrent',metadata.value)
+                case 'seek':
+                    opts.eventBus.trigger('seekCurrent', metadata.value)
                     break
             }
         })

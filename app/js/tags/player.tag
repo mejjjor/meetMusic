@@ -153,8 +153,21 @@
     })
 
     opts.eventBus.on('setPlaylist', (playlist) => {
-        this.playlist = playlist
-        opts.eventBus.trigger('addRemoteFunctions', this.playlist)
+        //si owner, uniquement reorder
+        if (global.isOwner) {
+            var newPlaylist = []
+            for (var item of playlist)
+                for (var item2 of this.playlist)
+                    if (item2.item.id == item.item.id) {
+                        newPlaylist.push(item2)
+                        break
+                    }
+            this.playlist = newPlaylist
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+        } else {
+            this.playlist = playlist
+            opts.eventBus.trigger('addRemoteFunctions', this.playlist)
+        }
         this.update()
     })
 
