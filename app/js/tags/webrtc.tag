@@ -138,6 +138,10 @@
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
+                if(peer.pc.iceConnectionState == 'closed')
+                    _.remove(peers,(p)=>{
+                        return p == peer
+                    })
             })
         }
         peer.on('fileTransfer', (metadata, receiver) => {

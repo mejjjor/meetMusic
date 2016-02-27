@@ -118,6 +118,7 @@
             this.playlist[i].item.status.pause = 'hide'
             this.playlist[i].item.pause()
         }
+        opts.eventBus.trigger('updatePlaylist', this.playlist)
         this.update()
     })
 
@@ -163,14 +164,21 @@
                 opts.eventBus.trigger('stopOthers', id)
                 opts.eventBus.trigger('setCurrent', id)
                 item.item.play(id)
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
                 break
             }
     })
 
     opts.eventBus.on('pauseCurrent', () => {
-        getCurrentItem().pause()
-        data.status.play = 'show'
-        data.status.pause = 'hide'
+        var item = getCurrentItem()
+        item.pause()
+        item.status.play = 'show'
+        item.status.pause = 'hide'
+        opts.eventBus.trigger('updatePlaylist', this.playlist)
+    })
+
+    opts.eventBus.on('updateItems', () => {
+        opts.eventBus.trigger('updatePlaylist', this.playlist)
     })
 
     var getId = (function() {

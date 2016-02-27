@@ -1,4 +1,3 @@
-- partage du status de la track (play / pause)
 - envoyer plusieurs fichiers
 - bloc parametre
 - générer qrcode
@@ -11,6 +10,5 @@
 
 - local storage de la playlist et des infos contributor
 - fix : ne lis pas les fichiers sur mobile
-- passer sous webpack pour babel
 - https
 - gérer si plusieurs owner à la première connexion -> ? (la blockchain !)

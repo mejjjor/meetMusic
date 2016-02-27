@@ -25,6 +25,7 @@
         if (global.isOwner) {
             opts.eventBus.trigger('stopOthers', opts.content.id)
             opts.eventBus.trigger('setCurrent', opts.content.id)
+            opts.eventBus.trigger('updateItems', this.playlist)
         }
         opts.content.play(opts.content.id)
     }
@@ -33,6 +34,7 @@
         if (global.isOwner) {
             opts.content.status.play = 'show'
             opts.content.status.pause = 'hide'
+            opts.eventBus.trigger('updateItems')
         }
         opts.content.pause()
     }
@@ -40,6 +42,7 @@
     next(e) {
         if (global.isOwner) {
             opts.eventBus.trigger('playNext')
+            opts.eventBus.trigger('updateItems')
         } else {
             //send data play next
         }

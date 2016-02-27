@@ -12,7 +12,7 @@
         "watch": "npm run watch:riot & npm run watch:scripts & npm run watch:assets & npm run watch:css",
         "watch:assets": "chokidar 'app/assets/*' -c 'echo `date` && npm run build:assets -s'",
         "watch:css": "chokidar 'app/css/*' -c 'echo `date` && npm run build:css -s'",
-        "watch:scripts": "mkdir -p public/js && watchify -d app/js/app.js -o public/js/app.js -v true",
+        "watch:scripts": "mkdir -p public/js && watchify -d app/js/app.js -o public/js/app.js -t riotify -v true",
         "watch:riot": "riot -w app/js/tags/ app/js/tags/tags.js",
         "prod": "babel app/js/tags/tags.js --out-file app/js/tags/tags.js && browserify app/js/app.js -o public/js/app.temp.js -v true && uglifyjs public/js/app.temp.js > public/js/app.js && rm -f public/js/app.temp.js"
 
