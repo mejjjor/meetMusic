@@ -124,8 +124,22 @@
                     type: 'pause'
                 })
             }
+            item.item.seekTime = function(value) {
+                ownerPeer.sendData({
+                    type: 'seek',
+                    value: value
+                })
+            }
 
         }
+    })
+
+    opts.eventBus.on('addVideo', (data) => {
+        data.type = 'video'
+        if (isOwner)
+            opts.eventBus.trigger('addItem', this.data)
+        else
+            ownerPeer.sendData(data)
     })
 
     webrtc.on('createdPeer', (peer) => {
@@ -138,8 +152,8 @@
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
-                if(peer.pc.iceConnectionState == 'closed')
-                    _.remove(peers,(p)=>{
+                if (peer.pc.iceConnectionState == 'closed')
+                    _.remove(peers, (p) => {
                         return p == peer
                     })
             })
@@ -163,9 +177,11 @@
                 case 'init':
                     if (isOwner)
                         peers.push(peer)
-                    if (ownerId == '') {
+                    if (metadata.ownerId == '')
+                        opts.eventBus.trigger('updateItems')
+                    if (ownerId == '')
                         ownerId = metadata.ownerId
-                    }
+
                     if (metadata.ownerId != '' && ownerId != metadata.ownerId) {
                         console.error('OWNER CONFLICT !! you: ' + webrtc.connection.connection.id + ' with owner: ' + ownerId + ' are in conflict with owner: ' + metadata.ownerId + ' from peer: ' + peer.id)
                     } else if (peer.id == ownerId)
@@ -181,15 +197,19 @@
                     })
                     break
                 case 'update':
-                    opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     if (isOwner)
                         opts.eventBus.trigger('updatePlaylist', metadata.playlist)
+                    else
+                        opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     break
                 case 'play':
                     opts.eventBus.trigger('playId', metadata.id)
                     break
                 case 'pause':
                     opts.eventBus.trigger('pauseCurrent')
+                    break
+                    case 'seek':
+                    opts.eventBus.trigger('seekCurrent',metadata.value)
                     break
             }
         })

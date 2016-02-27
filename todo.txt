@@ -1,4 +1,3 @@
-- envoyer plusieurs fichiers
 - bloc parametre
 - générer qrcode
 - design item

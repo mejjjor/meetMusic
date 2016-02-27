@@ -76,7 +76,7 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
 
 }, '{ }');
 
-riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <img riot-src="{opts.content.track.thumbnail}"> <div> <span>{opts.content.track.artist}</span><span> {opts.content.track.title}</span> <span>{opts.content.contributor.name}</span> </div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> </div> <div class="{opts.content.status.pause}"> <i class="fa fa-forward fa-2x {opts.content.status.pause}" onclick="{next}"></i> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div>', '', '', function(opts) {
+riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <img riot-src="{opts.content.track.thumbnail}"> <div> <span>{opts.content.track.artist}</span><span> {opts.content.track.title}</span> <span>{opts.content.contributor.name}</span> </div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div>', '', '', function(opts) {
     'use strict'
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
@@ -286,6 +286,11 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
 
     opts.eventBus.on('updateItems', () => {
         opts.eventBus.trigger('updatePlaylist', this.playlist)
+    })
+
+    opts.eventBus.on('seekCurrent', (value) => {
+        var item = getCurrentItem()
+        item.seekTime(value * item.track.duration / 100)
     })
 
     var getId = (function() {
@@ -636,8 +641,22 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                     type: 'pause'
                 })
             }
+            item.item.seekTime = function(value) {
+                ownerPeer.sendData({
+                    type: 'seek',
+                    value: value
+                })
+            }
 
         }
+    })
+
+    opts.eventBus.on('addVideo', (data) => {
+        data.type = 'video'
+        if (isOwner)
+            opts.eventBus.trigger('addItem', this.data)
+        else
+            ownerPeer.sendData(data)
     })
 
     webrtc.on('createdPeer', (peer) => {
@@ -650,8 +669,8 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
-                if(peer.pc.iceConnectionState == 'closed')
-                    _.remove(peers,(p)=>{
+                if (peer.pc.iceConnectionState == 'closed')
+                    _.remove(peers, (p) => {
                         return p == peer
                     })
             })
@@ -675,9 +694,11 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                 case 'init':
                     if (isOwner)
                         peers.push(peer)
-                    if (ownerId == '') {
+                    if (metadata.ownerId == '')
+                        opts.eventBus.trigger('updateItems')
+                    if (ownerId == '')
                         ownerId = metadata.ownerId
-                    }
+
                     if (metadata.ownerId != '' && ownerId != metadata.ownerId) {
                         console.error('OWNER CONFLICT !! you: ' + webrtc.connection.connection.id + ' with owner: ' + ownerId + ' are in conflict with owner: ' + metadata.ownerId + ' from peer: ' + peer.id)
                     } else if (peer.id == ownerId)
@@ -693,15 +714,19 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                     })
                     break
                 case 'update':
-                    opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     if (isOwner)
                         opts.eventBus.trigger('updatePlaylist', metadata.playlist)
+                    else
+                        opts.eventBus.trigger('setPlaylist', metadata.playlist)
                     break
                 case 'play':
                     opts.eventBus.trigger('playId', metadata.id)
                     break
                 case 'pause':
                     opts.eventBus.trigger('pauseCurrent')
+                    break
+                    case 'seek':
+                    opts.eventBus.trigger('seekCurrent',metadata.value)
                     break
             }
         })

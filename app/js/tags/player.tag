@@ -181,6 +181,11 @@
         opts.eventBus.trigger('updatePlaylist', this.playlist)
     })
 
+    opts.eventBus.on('seekCurrent', (value) => {
+        var item = getCurrentItem()
+        item.seekTime(value * item.track.duration / 100)
+    })
+
     var getId = (function() {
         var counter = 0
         return {

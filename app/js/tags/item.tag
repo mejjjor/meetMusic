@@ -10,7 +10,7 @@
         <img src="{ opts.content.contributor.thumbnail }" class="img-circle" />
     </div>
     <div class='{ opts.content.status.pause }'>
-        <i class="fa fa-forward fa-2x { opts.content.status.pause }" onclick="{ next }"></i>
+        <!-- <i class="fa fa-forward fa-2x { opts.content.status.pause }" onclick="{ next }"></i> -->
         <input type='range' value="{ opts.content.track.progress }" max="{ opts.content.track.duration }" onclick='{ seekTime }'>
         <span>{ opts.content.track.progress } / { opts.content.track.duration }</span>
         </progress>
