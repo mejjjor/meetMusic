@@ -9,12 +9,12 @@
         "build:css": "mkdir -p public/css && mkdir -p public/css && pleeease compile node_modules/normalize.css/normalize.css node_modules/font-awesome/css/font-awesome.min.css app/css/* to public/css/app.css",
         "build": "npm run build:assets && npm run build:css ",
         "dev": " npm run clean && npm run build && npm run watch",
-        "watch": "npm run watch:riot & npm run watch:riotes6 & npm run watch:scripts & npm run watch:assets & npm run watch:css",
+        "watch": "npm run watch:riot & npm run watch:scripts & npm run watch:assets & npm run watch:css",
         "watch:assets": "chokidar 'app/assets/*' -c 'echo `date` && npm run build:assets -s'",
         "watch:css": "chokidar 'app/css/*' -c 'echo `date` && npm run build:css -s'",
-        "watch:scripts": "mkdir -p public/js && watchify -d app/js/app.js -o public/js/app.js -t babelify -v true",
-        "watch:riot": "riot -w app/js/tags/ app/js/tags/es6.tags.js",
-        "watch:riotes6": "chokidar 'app/js/tags/es6.tags.js' -c 'echo `date` && babel app/js/tags/es6.tags.js --out-file app/js/tags/tags.js'"
+        "watch:scripts": "mkdir -p public/js && watchify -d app/js/app.js -o public/js/app.js -v true",
+        "watch:riot": "riot -w app/js/tags/ app/js/tags/tags.js",
+        "prod": "babel app/js/tags/tags.js --out-file app/js/tags/tags.js && browserify app/js/app.js -o public/js/app.temp.js -v true && uglifyjs public/js/app.temp.js > public/js/app.js && rm -f public/js/app.temp.js"
 
     },
     "repository": {
