@@ -21,6 +21,7 @@
             opts.eventBus.trigger('playNext')
         }
 
+
         var sortable = Sortable.create(document.getElementById('playlist'), {
             handle: '.handle',
             animation: 150,
@@ -31,6 +32,7 @@
             }
         });
     })
+
 
     timeUpdate(e) {
         opts.eventBus.trigger('getSeekTime', mp3Player.currentTime)
@@ -106,10 +108,6 @@
         var found = false
         for (var i = 0; i < this.playlist.length - 1; i++) {
             if (this.playlist[i].item.id === this.currentId) {
-                // opts.eventBus.trigger('stopOthers', this.playlist[i + 1].item.id)
-                // this.playlist[i + 1].item.play()
-                    //this.currentId = this.playlist[i + 1].item.id
-                    // opts.eventBus.trigger('setCurrent', this.playlist[i + 1].item.id)
                 opts.eventBus.trigger('playId', this.playlist[i + 1].item.id)
                 found = true
                 break
@@ -121,36 +119,45 @@
             this.playlist[i].item.status.play = 'show'
             this.playlist[i].item.status.pause = 'hide'
             this.playlist[i].item.pause()
-            this.playlistListenned.push(this.playlist.splice(0, 1)[0])
+            transitionItem(this.root.querySelector('ol').childNodes[i + 1], 'translateUp')
             opts.eventBus.trigger('updatePlaylist', this.playlist)
             this.update()
         }
     })
 
     opts.eventBus.on('setCurrent', (id) => {
-        var toDelete = []
         for (var i = 0; i < this.playlist.length; i++) {
             if (this.playlist[i].item.id == id)
                 break
+            transitionItem(this.root.querySelector('ol').childNodes[i + 1], 'translateUp')
         }
-        Array.prototype.push.apply(this.playlistListenned, this.playlist.splice(0, i))
-        console.log("zzz", this.playlistListenned)
-
         this.currentId = id
         this.update()
     })
+
+
 
     opts.eventBus.on('deleteItem', (id) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == id) {
                 if (this.playlist[i].item.status.play == 'hide')
                     opts.eventBus.trigger('pauseCurrent')
-                this.playlist.splice(i, 1)
+                transitionItem(this.root.querySelector('ol').childNodes[i + 1], 'translateUp', i)
                 opts.eventBus.trigger('updatePlaylist', this.playlist)
                 break
             }
         this.update()
     })
+
+    var transitionItem = (elem, cssClass, i) => {
+        if (i == undefined)
+            i = 0
+        elem.addEventListener("transitionend", (e) => {
+            if (e.propertyName == 'opacity')
+                this.playlistListenned.push(this.playlist.splice(i, 1)[0])
+        }, false);
+        elem.className += cssClass
+    }
 
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
@@ -262,6 +269,10 @@
             if (this.playlist[i].item.id === this.currentId)
                 return this.playlist[i].item
         return {}
+    }
+
+    var deleteItem = () => {
+
     }
     </script>
 </mm-player>

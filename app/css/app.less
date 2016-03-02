@@ -44,6 +44,7 @@ mm-player {
     ol {
         padding: 0;
         li {
+            max-height: 100px;
             list-style-type: none;
             max-width: @maxWidth;
             margin: 0px 5px;
@@ -110,6 +111,15 @@ mm-item {
     .nanobar {
         margin: 0 -3px 2px;
     }
+}
+
+.translateUp {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+    overflow: hidden;
+    transition: all 0.4s ease;
 }
 
 .hide {

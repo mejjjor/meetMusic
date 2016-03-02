@@ -10,11 +10,6 @@
         pause -> show play + seek
         stop -> show play
  -->
-        <!-- 
-    show 3 points verticaux
-        -> élément draggable
-            -> comment rendre l'item deplacable mais uniquement par cet élément
-    -->
         <i class="fa fa-ellipsis-v handle"></i>
         <img src="{ opts.content.track.thumbnail }" class='handle' />
         <i class="fa fa-play-circle fa-3x { opts.content.status.play }" onclick="{ play }"></i>
