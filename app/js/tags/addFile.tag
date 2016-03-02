@@ -26,14 +26,14 @@
                         opts.eventBus.trigger('youtubeSearch', tags.artist + " " + tags.title, 1, (results) => {
                             var thumbnail
                             if (results[0] == undefined)
-                                thumbnail = '/favicon.png'
+                                thumbnail = '/music.png'
                             else
                                 thumbnail = results[0].item.snippet.thumbnails.default.url
                             this.data = {
                                 track: {
                                     artist: tags.artist,
                                     title: tags.title,
-                                    duration: "00:00",
+                                    duration: 0,
                                     thumbnail: thumbnail,
                                     progress: 0
                                 },

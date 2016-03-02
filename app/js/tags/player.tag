@@ -11,6 +11,7 @@
     var Sortable = require("sortablejs")
     var _ = require('lodash')
     this.playlist = []
+    this.playlistListenned = []
     this.currentId = 0
     var mp3Player
 
@@ -21,6 +22,7 @@
         }
 
         var sortable = Sortable.create(document.getElementById('playlist'), {
+            handle: '.handle',
             animation: 150,
             onEnd: (evt) => {
                 let el = this.playlist[evt.oldIndex]
@@ -72,18 +74,18 @@
         }
     })
 
-    opts.eventBus.on('addPlayItem', (data) => {
-        data.id = getId.next()
-        opts.eventBus.trigger('stopOthers', data.id)
-        this.playlist.push({
-            item: data
-        })
-        this.currentId = data.id
-        data.status.play = 'hide'
-        data.status.pause = 'show'
-        data.play()
-        this.update()
-    })
+    // opts.eventBus.on('addPlayItem', (data) => {
+    //     data.id = getId.next()
+    //     opts.eventBus.trigger('stopOthers', data.id)
+    //     this.playlist.push({
+    //         item: data
+    //     })
+    //     this.currentId = data.id
+    //     data.status.play = 'hide'
+    //     data.status.pause = 'show'
+    //     data.play()
+    //     this.update()
+    // })
 
     opts.eventBus.on('stopOthers', (id) => {
         for (var i = 0; i < this.playlist.length; i++) {
@@ -104,26 +106,38 @@
         var found = false
         for (var i = 0; i < this.playlist.length - 1; i++) {
             if (this.playlist[i].item.id === this.currentId) {
-                opts.eventBus.trigger('stopOthers', this.playlist[i + 1].item.id)
-                this.playlist[i + 1].item.play()
-
-                this.currentId = this.playlist[i + 1].item.id
+                // opts.eventBus.trigger('stopOthers', this.playlist[i + 1].item.id)
+                // this.playlist[i + 1].item.play()
+                    //this.currentId = this.playlist[i + 1].item.id
+                    // opts.eventBus.trigger('setCurrent', this.playlist[i + 1].item.id)
+                opts.eventBus.trigger('playId', this.playlist[i + 1].item.id)
                 found = true
                 break
             }
         }
+
         //fin de la playlist
         if (!found) {
             this.playlist[i].item.status.play = 'show'
             this.playlist[i].item.status.pause = 'hide'
             this.playlist[i].item.pause()
+            this.playlistListenned.push(this.playlist.splice(0, 1)[0])
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+            this.update()
         }
-        opts.eventBus.trigger('updatePlaylist', this.playlist)
-        this.update()
     })
 
     opts.eventBus.on('setCurrent', (id) => {
+        var toDelete = []
+        for (var i = 0; i < this.playlist.length; i++) {
+            if (this.playlist[i].item.id == id)
+                break
+        }
+        Array.prototype.push.apply(this.playlistListenned, this.playlist.splice(0, i))
+        console.log("zzz", this.playlistListenned)
+
         this.currentId = id
+        this.update()
     })
 
     opts.eventBus.on('deleteItem', (id) => {
@@ -141,7 +155,11 @@
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
+                var progress = this.playlist[i].item.track.progress
+                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
+                    opts.eventBus.trigger('updatePlaylist', this.playlist)
                 this.playlist[i].item.track.progress = Math.round(value)
+
                 break
             }
         this.update()
@@ -185,7 +203,7 @@
 
     opts.eventBus.on('playId', (id) => {
         for (var item of this.playlist)
-            if (item.item.id === id) {
+            if (item.item.id === id && item.item.play != undefined) {
                 opts.eventBus.trigger('stopOthers', id)
                 opts.eventBus.trigger('setCurrent', id)
                 item.item.play(id)
@@ -196,10 +214,12 @@
 
     opts.eventBus.on('pauseCurrent', () => {
         var item = getCurrentItem()
-        item.pause()
-        item.status.play = 'show'
-        item.status.pause = 'hide'
-        opts.eventBus.trigger('updatePlaylist', this.playlist)
+        if (item.pause != undefined) {
+            item.pause()
+            item.status.play = 'show'
+            item.status.pause = 'hide'
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+        }
     })
 
     opts.eventBus.on('updateItems', () => {
@@ -208,7 +228,15 @@
 
     opts.eventBus.on('seekCurrent', (value) => {
         var item = getCurrentItem()
-        item.seekTime(value * item.track.duration / 100)
+        if (item.seekTime != undefined) {
+            item.seekTime(value)
+        }
+    })
+
+    opts.eventBus.on('updateTransfert', function(name, ratio) {
+        var item = getItemByName(name)
+        if (item != undefined)
+            item.updateTransfert(ratio)
     })
 
     var getId = (function() {
@@ -222,6 +250,12 @@
             }
         }
     }())
+
+    var getItemByName = (name) => {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.file != undefined && this.playlist[i].item.file.name == name)
+                return this.playlist[i].item
+    }
 
     var getCurrentItem = () => {
         for (var i = 0; i < this.playlist.length; i++)

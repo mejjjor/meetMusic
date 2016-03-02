@@ -14,6 +14,8 @@
     var _ = require('lodash')
     var apiKey = 'AIzaSyDrc_XoIlz_HqMflR0CHHOyatGemqwgAvo'
     var suggest
+    // addItems()
+    // addItems()
 
     this.on('mount', () => {
         suggest = Completely.completely(this.search, {
@@ -142,6 +144,11 @@
                 suggest.repaint()
             }
         })
+    }
+
+    function addItems(){
+        opts.eventBus.trigger('addItem', {"track":{"title":"Adele - Hello","duration":367,"thumbnail":"https://i.ytimg.com/vi/YQHsXMglC9A/default.jpg","progress":0},"video":{"id":"YQHsXMglC9A"},"contributor":{"name":"erik","thumbnail":"/favicon.png"},"status":{},"type":"video"})
+
     }
     </script>
 </mm-search>

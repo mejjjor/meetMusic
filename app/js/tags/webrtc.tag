@@ -86,14 +86,17 @@
             data.file.url = ''
             ownerPeer.sendData(data)
             var sender = ownerPeer.sendFile(file)
+            sender.on('progress', (bytesSended) => {
+                opts.eventBus.trigger('updateTransfert', file.name, bytesSended / file.size * 100)
+            })
         }
     })
 
     opts.eventBus.on('addVideo', (data) => {
         data.type = 'video'
-        if (isOwner)
+        if (isOwner) {
             opts.eventBus.trigger('addItem', data)
-        else
+        } else
             ownerPeer.sendData(data)
     })
 
@@ -152,8 +155,8 @@
         }
         peer.on('fileTransfer', (metadata, receiver) => {
             console.log('incoming filetransfer', metadata)
-            receiver.on('progress', function(bytesReceived) {
-                //on progress
+            receiver.on('progress', (bytesReceived) => {
+                opts.eventBus.trigger('updateTransfert', metadata.name, bytesReceived / metadata.size * 100)
             })
             receiver.on('receivedFile', (file, metadata) => {
                 console.log('received file', metadata.name, metadata.size)

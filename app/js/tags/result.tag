@@ -1,5 +1,4 @@
 <mm-result>
-    <!-- <i class="fa fa-play-circle fa-3x" onclick="{ play }"></i> -->
     <i class="fa fa-plus-circle fa-3x" onclick="{ add }"></i>
     <img src="{ data.track.thumbnail }" />
     <span>{ data.track.duration }</span>
@@ -33,12 +32,6 @@
     add(e) {
         opts.eventBus.trigger('removeResult', this.data.track.title)
         opts.eventBus.trigger('addVideo', this.data)
-    }
-
-    play(e) {
-        opts.eventBus.trigger('addPlayItem', this.data)
-        opts.eventBus.trigger('removeResult', this.data.track.title)
-        opts.eventBus.trigger('addPlayVideo', this.data)
     }
     </script>
 </mm-result>

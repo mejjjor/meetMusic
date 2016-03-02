@@ -23,14 +23,14 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
                         opts.eventBus.trigger('youtubeSearch', tags.artist + " " + tags.title, 1, (results) => {
                             var thumbnail
                             if (results[0] == undefined)
-                                thumbnail = '/favicon.png'
+                                thumbnail = '/music.png'
                             else
                                 thumbnail = results[0].item.snippet.thumbnails.default.url
                             this.data = {
                                 track: {
                                     artist: tags.artist,
                                     title: tags.title,
-                                    duration: "00:00",
+                                    duration: 0,
                                     thumbnail: thumbnail,
                                     progress: 0
                                 },
@@ -76,17 +76,27 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
 
 }, '{ }');
 
-riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <img riot-src="{opts.content.track.thumbnail}"> <div> <span>{opts.content.track.artist}</span><span> {opts.content.track.title}</span> <span>{opts.content.contributor.name}</span> </div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> <i class="fa fa-times-circle fa-2x" onclick="{delete}"></i> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div>', '', '', function(opts) {
+riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-src="{opts.content.track.thumbnail}" class="handle"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <div> <span>{opts.content.track.artist}</span> <span> {opts.content.track.title}</span> </div> <div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> <span>{opts.content.contributor.name}</span> </div> <div> <i class="fa fa-arrow-circle-o-down fa-2x"></i> <i class="fa fa-times-circle-o fa-2x" onclick="{delete}"></i> </div> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div> <div class="nanobar"></div>', '', '', function(opts) {
     'use strict'
+    var Nanobar = require('nanobar')
+
     this.on('mount', function() {
         opts.eventBus = this.parent.opts.eventBus;
+        this.nanobar = new Nanobar({
+            bg: '#607d8b',
+            target: this.root.lastChild
+        });
     })
+
+    this.opts.content.updateTransfert = (value) => {
+        this.nanobar.go(value)
+    }
 
     this.play = function(e) {
         opts.content.play(opts.content.id)
         if (global.isOwner) {
             opts.eventBus.trigger('stopOthers', opts.content.id)
-            opts.eventBus.trigger('setCurrent', opts.content.id)
+            opts.eventBus.trigger('playId', opts.content.id)
             opts.eventBus.trigger('updateItems', this.playlist)
         }
     }.bind(this)
@@ -100,21 +110,12 @@ riot.tag2('mm-item', '<div draggable="true"> <i class="fa fa-play-circle fa-3x {
         opts.content.pause()
     }.bind(this)
 
-    this.next = function(e) {
-        if (global.isOwner) {
-            opts.eventBus.trigger('playNext')
-            opts.eventBus.trigger('updateItems')
-        } else {
-
-        }
-    }.bind(this)
-
     this.seekTime = function(e) {
         opts.content.seekTime(e.srcElement.value);
     }.bind(this)
 
-    this.delete = function(e){
-        opts.eventBus.trigger('deleteItem',opts.content.id)
+    this.delete = function(e) {
+        opts.eventBus.trigger('deleteItem', opts.content.id)
     }.bind(this)
 }, '{ }');
 
@@ -124,6 +125,7 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     var Sortable = require("sortablejs")
     var _ = require('lodash')
     this.playlist = []
+    this.playlistListenned = []
     this.currentId = 0
     var mp3Player
 
@@ -134,6 +136,7 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
         }
 
         var sortable = Sortable.create(document.getElementById('playlist'), {
+            handle: '.handle',
             animation: 150,
             onEnd: (evt) => {
                 let el = this.playlist[evt.oldIndex]
@@ -183,19 +186,6 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
         }
     })
 
-    opts.eventBus.on('addPlayItem', (data) => {
-        data.id = getId.next()
-        opts.eventBus.trigger('stopOthers', data.id)
-        this.playlist.push({
-            item: data
-        })
-        this.currentId = data.id
-        data.status.play = 'hide'
-        data.status.pause = 'show'
-        data.play()
-        this.update()
-    })
-
     opts.eventBus.on('stopOthers', (id) => {
         for (var i = 0; i < this.playlist.length; i++) {
             if (this.playlist[i].item.id != id) {
@@ -215,10 +205,8 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
         var found = false
         for (var i = 0; i < this.playlist.length - 1; i++) {
             if (this.playlist[i].item.id === this.currentId) {
-                opts.eventBus.trigger('stopOthers', this.playlist[i + 1].item.id)
-                this.playlist[i + 1].item.play()
 
-                this.currentId = this.playlist[i + 1].item.id
+                opts.eventBus.trigger('playId', this.playlist[i + 1].item.id)
                 found = true
                 break
             }
@@ -228,13 +216,23 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
             this.playlist[i].item.status.play = 'show'
             this.playlist[i].item.status.pause = 'hide'
             this.playlist[i].item.pause()
+            this.playlistListenned.push(this.playlist.splice(0, 1)[0])
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+            this.update()
         }
-        opts.eventBus.trigger('updatePlaylist', this.playlist)
-        this.update()
     })
 
     opts.eventBus.on('setCurrent', (id) => {
+        var toDelete = []
+        for (var i = 0; i < this.playlist.length; i++) {
+            if (this.playlist[i].item.id == id)
+                break
+        }
+        Array.prototype.push.apply(this.playlistListenned, this.playlist.splice(0, i))
+        console.log("zzz", this.playlistListenned)
+
         this.currentId = id
+        this.update()
     })
 
     opts.eventBus.on('deleteItem', (id) => {
@@ -252,7 +250,11 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
+                var progress = this.playlist[i].item.track.progress
+                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
+                    opts.eventBus.trigger('updatePlaylist', this.playlist)
                 this.playlist[i].item.track.progress = Math.round(value)
+
                 break
             }
         this.update()
@@ -296,7 +298,7 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
 
     opts.eventBus.on('playId', (id) => {
         for (var item of this.playlist)
-            if (item.item.id === id) {
+            if (item.item.id === id && item.item.play != undefined) {
                 opts.eventBus.trigger('stopOthers', id)
                 opts.eventBus.trigger('setCurrent', id)
                 item.item.play(id)
@@ -307,10 +309,12 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
 
     opts.eventBus.on('pauseCurrent', () => {
         var item = getCurrentItem()
-        item.pause()
-        item.status.play = 'show'
-        item.status.pause = 'hide'
-        opts.eventBus.trigger('updatePlaylist', this.playlist)
+        if (item.pause != undefined) {
+            item.pause()
+            item.status.play = 'show'
+            item.status.pause = 'hide'
+            opts.eventBus.trigger('updatePlaylist', this.playlist)
+        }
     })
 
     opts.eventBus.on('updateItems', () => {
@@ -319,7 +323,15 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
 
     opts.eventBus.on('seekCurrent', (value) => {
         var item = getCurrentItem()
-        item.seekTime(value * item.track.duration / 100)
+        if (item.seekTime != undefined) {
+            item.seekTime(value)
+        }
+    })
+
+    opts.eventBus.on('updateTransfert', function(name, ratio) {
+        var item = getItemByName(name)
+        if (item != undefined)
+            item.updateTransfert(ratio)
     })
 
     var getId = (function() {
@@ -333,6 +345,12 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
             }
         }
     }())
+
+    var getItemByName = (name) => {
+        for (var i = 0; i < this.playlist.length; i++)
+            if (this.playlist[i].item.file != undefined && this.playlist[i].item.file.name == name)
+                return this.playlist[i].item
+    }
 
     var getCurrentItem = () => {
         for (var i = 0; i < this.playlist.length; i++)
@@ -371,12 +389,6 @@ riot.tag2('mm-result', '<i class="fa fa-plus-circle fa-3x" onclick="{add}"></i> 
     this.add = function(e) {
         opts.eventBus.trigger('removeResult', this.data.track.title)
         opts.eventBus.trigger('addVideo', this.data)
-    }.bind(this)
-
-    this.play = function(e) {
-        opts.eventBus.trigger('addPlayItem', this.data)
-        opts.eventBus.trigger('removeResult', this.data.track.title)
-        opts.eventBus.trigger('addPlayVideo', this.data)
     }.bind(this)
 }, '{ }');
 
@@ -515,6 +527,11 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
             }
         })
     }
+
+    function addItems(){
+        opts.eventBus.trigger('addItem', {"track":{"title":"Adele - Hello","duration":367,"thumbnail":"https://i.ytimg.com/vi/YQHsXMglC9A/default.jpg","progress":0},"video":{"id":"YQHsXMglC9A"},"contributor":{"name":"erik","thumbnail":"/favicon.png"},"status":{},"type":"video"})
+
+    }
 }, '{ }');
 
 riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>', '', '', function(opts) {
@@ -640,14 +657,17 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
             data.file.url = ''
             ownerPeer.sendData(data)
             var sender = ownerPeer.sendFile(file)
+            sender.on('progress', (bytesSended) => {
+                opts.eventBus.trigger('updateTransfert', file.name, bytesSended / file.size * 100)
+            })
         }
     })
 
     opts.eventBus.on('addVideo', (data) => {
         data.type = 'video'
-        if (isOwner)
+        if (isOwner) {
             opts.eventBus.trigger('addItem', data)
-        else
+        } else
             ownerPeer.sendData(data)
     })
 
@@ -706,8 +726,8 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
         }
         peer.on('fileTransfer', (metadata, receiver) => {
             console.log('incoming filetransfer', metadata)
-            receiver.on('progress', function(bytesReceived) {
-
+            receiver.on('progress', (bytesReceived) => {
+                opts.eventBus.trigger('updateTransfert', metadata.name, bytesReceived / metadata.size * 100)
             })
             receiver.on('receivedFile', (file, metadata) => {
                 console.log('received file', metadata.name, metadata.size)
