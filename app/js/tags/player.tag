@@ -33,11 +33,9 @@
         });
     })
 
-
     timeUpdate(e) {
         opts.eventBus.trigger('getSeekTime', mp3Player.currentTime)
     }
-
 
     playAudio(e) {
         getCurrentItem().track.duration = Math.round(mp3Player.duration)
@@ -46,8 +44,8 @@
     dragover(e) {
         e.preventDefault();
         e.stopPropagation();
-
     }
+    
     drop(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -75,19 +73,6 @@
             console.log(this.playlist[i])
         }
     })
-
-    // opts.eventBus.on('addPlayItem', (data) => {
-    //     data.id = getId.next()
-    //     opts.eventBus.trigger('stopOthers', data.id)
-    //     this.playlist.push({
-    //         item: data
-    //     })
-    //     this.currentId = data.id
-    //     data.status.play = 'hide'
-    //     data.status.pause = 'show'
-    //     data.play()
-    //     this.update()
-    // })
 
     opts.eventBus.on('stopOthers', (id) => {
         for (var i = 0; i < this.playlist.length; i++) {
@@ -153,8 +138,10 @@
         if (i == undefined)
             i = 0
         elem.addEventListener("transitionend", (e) => {
-            if (e.propertyName == 'opacity')
+            if (e.propertyName == 'opacity') {
                 this.playlistListenned.push(this.playlist.splice(i, 1)[0])
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
+            }
         }, false);
         elem.className += cssClass
     }

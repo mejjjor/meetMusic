@@ -38,8 +38,8 @@
                                     progress: 0
                                 },
                                 contributor: {
-                                    name: "erik",
-                                    thumbnail: "/favicon.png"
+                                    name: global.contributorName,
+                                    thumbnail: global.contributorPictureUrl 
                                 },
                                 file: {
                                     url: url,

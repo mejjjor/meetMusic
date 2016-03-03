@@ -35,8 +35,8 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
                                     progress: 0
                                 },
                                 contributor: {
-                                    name: "erik",
-                                    thumbnail: "/favicon.png"
+                                    name: global.contributorName,
+                                    thumbnail: global.contributorPictureUrl
                                 },
                                 file: {
                                     url: url,
@@ -76,7 +76,7 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
 
 }, '{ }');
 
-riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-src="{opts.content.track.thumbnail}" class="handle"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <div> <span>{opts.content.track.artist}</span> <span> {opts.content.track.title}</span> </div> <div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> <span>{opts.content.contributor.name}</span> </div> <div> <i class="fa fa-arrow-circle-o-down fa-2x"></i> <i class="fa fa-times-circle-o fa-2x" onclick="{delete}"></i> </div> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div> <div class="nanobar"></div>', '', '', function(opts) {
+riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-src="{opts.content.track.thumbnail}" class="handle"> <i class="fa fa-play-circle fa-3x {opts.content.status.play}" onclick="{play}"></i> <i class="fa fa-pause-circle fa-3x {opts.content.status.pause}" onclick="{pause}"></i> <div> <span>{opts.content.track.artist}</span> <span> {opts.content.track.title}</span> </div> <div> <img riot-src="{opts.content.contributor.thumbnail}" class="img-circle"> <span>{opts.content.contributor.name}</span> </div> <div> <a if="{opts.content.file != undefined}" href="{opts.content.file.url}" download="{opts.content.file.name}"><i class="fa fa-arrow-circle-o-down fa-2x"></i></a> <i class="fa fa-times-circle-o fa-2x" onclick="{delete}"></i> </div> </div> <div class="{opts.content.status.pause}"> <input type="range" value="{opts.content.track.progress}" max="{opts.content.track.duration}" onclick="{seekTime}"> <span>{opts.content.track.progress} / {opts.content.track.duration}</span> </progress> </div> <div class="nanobar"></div>', '', '', function(opts) {
     'use strict'
     var Nanobar = require('nanobar')
 
@@ -119,6 +119,38 @@ riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-sr
     }.bind(this)
 }, '{ }');
 
+riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div> <div id="qrcode"> <img riot-src="{qrcode}"> </div> <div> <input type="checkbox" value="{editable}" onchange="{changeEdit}">Playlist editable</input> <input type="checkbox">Delete item after playing</input> </div>', '', '', function(opts) {
+    'use strict'
+    this.editable = true
+    global.editable = true
+
+    this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location
+
+    this.edit = function(e) {
+        this.room = e.target.value
+    }.bind(this)
+
+    this.joinRoom = function(e) {
+        location.search = this.room
+        this.update()
+    }.bind(this)
+
+    this.createRoom = function(e) {
+        opts.eventBus.trigger('createRoom', this.room)
+        this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location + '?' + this.room
+
+        this.update()
+    }.bind(this)
+
+    this.reset = function(e) {
+        location.search = ''
+    }.bind(this)
+
+    this.changeEdit = function(e) {
+        global.editable = e.target.value
+    }.bind(this)
+}, '{ }');
+
 riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplaying="{playAudio}"></audio> <ol id="playlist"> <li each="{playlist}"> <mm-item content="{item}"></mm-item> </li> </ol>', '', 'ondragover="{dragover}" ondrop="{drop}"', function(opts) {
     'use strict'
 
@@ -157,8 +189,8 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     this.dragover = function(e) {
         e.preventDefault();
         e.stopPropagation();
-
     }.bind(this)
+
     this.drop = function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -247,8 +279,10 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
         if (i == undefined)
             i = 0
         elem.addEventListener("transitionend", (e) => {
-            if (e.propertyName == 'opacity')
+            if (e.propertyName == 'opacity') {
                 this.playlistListenned.push(this.playlist.splice(i, 1)[0])
+                opts.eventBus.trigger('updatePlaylist', this.playlist)
+            }
         }, false);
         elem.className += cssClass
     }
@@ -382,12 +416,12 @@ riot.tag2('mm-result', '<i class="fa fa-plus-circle fa-3x" onclick="{add}"></i> 
                 thumbnail: opts.content.snippet.thumbnails.default.url,
                 progress: 0
             },
-            video:{
-                id:opts.content.id.videoId
+            video: {
+                id: opts.content.id.videoId
             },
             contributor: {
-                name: "erik",
-                thumbnail: "/favicon.png"
+                name: global.contributorName,
+                thumbnail: global.contributorPictureUrl
             },
             status: {}
         }
@@ -544,6 +578,54 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
     }
 }, '{ }');
 
+riot.tag2('mm-social', '<table> <tr> <td>Name </td> <td> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input> </td> </tr> <tr> <td>Url picture </td> <td> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}"></input> </td> </tr> </table> <img riot-src="{pictureUrl}">', '', '', function(opts) {
+    'use strict'
+
+    var themes = ['sugarsweets', 'heatwave', 'daisygarden', 'seascape', 'summerwarmth', 'bythepool', 'duskfalling', 'frogideas', 'berrypie']
+
+    this.on('mount', () => {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'http://uinames.com/api/?region=france', true);
+        req.onreadystatechange = (aEvt) => {
+            if (req.readyState == 4) {
+                if (req.status == 200) {
+                    this.name = JSON.parse(req.responseText).name
+                    this.pictureUrl = getRandomPicture(this.name)
+                    this.update()
+                } else {
+                    this.name = 'Mr black'
+                    this.pictureUrl = getRandomPicture(this.name)
+                    this.update()
+                    console.error('uinames ERROR')
+                }
+                global.contributorName = this.name
+                global.contributorPictureUrl = this.pictureUrl
+            }
+        }
+        req.send(null)
+    })
+
+    function getRandomPicture(name) {
+        var theme = themes[Math.round(Math.random() * themes.length)]
+        return 'http://tinygraphs.com/labs/isogrids/hexa16/' + name + '?theme=' + theme + '&numcolors=4&size=220&fmt=svg'
+    }
+
+    this.editPicture = function(e) {
+        this.pictureUrl = e.target.value
+        global.contributorPictureUrl = e.target.value
+
+        this.update()
+        return true
+    }.bind(this)
+
+    this.editName = function(e){
+        global.contributorName = e.target.value
+    }.bind(this)
+}, '{ }');
+
+riot.tag2('mm-title', '<div> <h1> MEET ~ MUSIC </h1> <i class="fa fa-cog fa-2x"></i> </div>', '', '', function(opts) {
+});
+
 riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>', '', '', function(opts) {
     'use strict'
     var videoPlayer
@@ -590,7 +672,7 @@ riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>'
     }
 });
 
-riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{reset}">reset</button> </div> <div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div>', '', '', function(opts) {
+riot.tag2('mm-webrtc', '', '', '', function(opts) {
     'use strict'
     var SimpleWebRTC = require('../webrtc/simplewebrtc.js')
     this.room = location.search && location.search.split('?')[1]
@@ -601,7 +683,7 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
 
     this.on('mount', () => {
         if (this.room) {
-            this.root.childNodes[2].style.display = 'none'
+
             webrtc.joinRoom(this.room, (err, res) => {
                 console.log('joined', this.room, err, res)
                 isOwner = false
@@ -626,12 +708,9 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
         }
     });
 
-    this.edit = function(e) {
-        this.room = e.target.value
-    }.bind(this)
+    opts.eventBus.on('createRoom',(room)=> {
+        this.room = room
 
-    this.createRoom = function(e) {
-        this.root.childNodes[2].style.display = 'none'
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
         webrtc.createRoom(val, (err, name) => {
             console.log(' create room cb', arguments)
@@ -649,15 +728,7 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
                 console.log(err)
             }
         });
-    }.bind(this)
-
-    this.joinRoom = function(e) {
-        location.search = this.room
-    }.bind(this)
-
-    this.reset = function(e) {
-        location.search = ''
-    }.bind(this)
+    })
 
     opts.eventBus.on('addMp3', (data, file) => {
         data.type = 'mp3'
@@ -795,4 +866,4 @@ riot.tag2('mm-webrtc', '<div> <span>Owner : {isOwner}</span> <button onclick="{r
     webrtc.on('connectivityError', function(peer) {
         console.log('remote fail with peer: ' + peer)
     })
-}, '{ }');
+});

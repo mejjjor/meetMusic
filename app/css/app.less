@@ -2,10 +2,23 @@
 body {
     font-family: "Montserrat", "Open Sans", "Helvetica Neue", "Arial", sans- serif;
     font-size: 14px;
+    width: @maxWidth;
+    padding: 0 3px;
 }
 
-h1 {
-    color: green;
+mm-title {
+    div {
+        display: inline-flex;
+        justify-content: space-around;
+        align-items: center;
+        width: @maxWidth+4px;
+        background-image: url(http://www.tinygraphs.com/isogrids/banner/random/gradient?theme=bythepool&numcolors=4&h=50&w=400&xt=25);
+        background-size: cover;
+    }
+    h1 {
+        font-size: 35px;
+        margin: 0;
+    }
 }
 
 mm-search {
@@ -43,12 +56,10 @@ mm-result {
 mm-player {
     ol {
         padding: 0;
+        margin: 0;
         li {
             max-height: 100px;
             list-style-type: none;
-            max-width: @maxWidth;
-            margin: 0px 5px;
-            padding: 3px;
             border: 4px solid #4db6ac;
             border-top-width: 2px;
             border-bottom-width: 2px;
@@ -89,6 +100,9 @@ mm-item {
                 overflow: hidden;
             }
         }
+        >div:nth-of-type(2) {
+            max-width: 50px;
+        }
     }
     >div:nth-of-type(2) {
         display: flex;
@@ -110,6 +124,20 @@ mm-item {
     }
     .nanobar {
         margin: 0 -3px 2px;
+    }
+}
+
+mm-social {
+    img {
+        height: 60px;
+    }
+}
+
+mm-parameters {
+    #qrcode {
+        margin: 20px;
+        display: flex;
+        justify-content: center;
     }
 }
 

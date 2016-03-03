@@ -23,7 +23,7 @@
             <span>{ opts.content.contributor.name }</span>
         </div>
         <div>
-            <i class="fa fa-arrow-circle-o-down fa-2x"></i>
+            <a if={ opts.content.file != undefined } href="{ opts.content.file.url }" download="{ opts.content.file.name }"><i class="fa fa-arrow-circle-o-down fa-2x"></i></a>
             <i class="fa fa-times-circle-o fa-2x" onclick="{ delete }"></i>
         </div>
     </div>

@@ -15,12 +15,12 @@
                 thumbnail: opts.content.snippet.thumbnails.default.url,
                 progress: 0
             },
-            video:{
-                id:opts.content.id.videoId
+            video: {
+                id: opts.content.id.videoId
             },
             contributor: {
-                name: "erik",
-                thumbnail: "/favicon.png"
+                name: global.contributorName,
+                thumbnail: global.contributorPictureUrl
             },
             status: {}
         }

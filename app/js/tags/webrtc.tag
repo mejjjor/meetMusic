@@ -1,14 +1,4 @@
 <mm-webrtc>
-    <div>
-        <span>Owner : { isOwner }</span>
-        <button onclick='{ reset }'>reset</button>
-    </div>
-    <div>
-        <h3>Create a playlist or join one</h3>
-        <input type='text' onkeyup='{ edit }' placeholder='playlist name'></input>
-        <button onclick='{ createRoom }'>Create</button>
-        <button onclick='{ joinRoom }'>Join</button>
-    </div>
     <script>
     'use strict'
     var SimpleWebRTC = require('../webrtc/simplewebrtc.js')
@@ -20,7 +10,7 @@
 
     this.on('mount', () => {
         if (this.room) {
-            this.root.childNodes[2].style.display = 'none'
+            //hide parameters
             webrtc.joinRoom(this.room, (err, res) => {
                 console.log('joined', this.room, err, res)
                 isOwner = false
@@ -45,12 +35,9 @@
         }
     });
 
-    edit(e) {
-        this.room = e.target.value
-    }
-
-    createRoom(e) {
-        this.root.childNodes[2].style.display = 'none'
+    opts.eventBus.on('createRoom',(room)=> {
+        this.room = room
+        //hide parameters
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
         webrtc.createRoom(val, (err, name) => {
             console.log(' create room cb', arguments)
@@ -68,15 +55,7 @@
                 console.log(err)
             }
         });
-    }
-
-    joinRoom(e) {
-        location.search = this.room
-    }
-
-    reset(e) {
-        location.search = ''
-    }
+    })
 
     opts.eventBus.on('addMp3', (data, file) => {
         data.type = 'mp3'

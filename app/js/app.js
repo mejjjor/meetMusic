@@ -9,6 +9,9 @@ require('./tags/result.tag')
 require('./tags/item.tag')
 require('./tags/video.tag')
 require('./tags/addFile.tag')
+require('./tags/title.tag')
+require('./tags/parameters.tag')
+require('./tags/social.tag')
 // require('./tags/tags.js')
 var eventBus
 

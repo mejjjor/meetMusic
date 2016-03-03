@@ -1,6 +1,3 @@
-- bloc parametre
-- générer qrcode
-- personaliser contributor (tinygraph)
 - faire les blocs modulables
 
 - fix : search : suggestion start good index (ex wriggles -> suggest = the wriggles)
