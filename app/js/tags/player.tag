@@ -45,7 +45,7 @@
         e.preventDefault();
         e.stopPropagation();
     }
-    
+
     drop(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -141,6 +141,7 @@
             if (e.propertyName == 'opacity') {
                 this.playlistListenned.push(this.playlist.splice(i, 1)[0])
                 opts.eventBus.trigger('updatePlaylist', this.playlist)
+                opts.eventBus.trigger('updateListenned', this.playlistListenned)
             }
         }, false);
         elem.className += cssClass

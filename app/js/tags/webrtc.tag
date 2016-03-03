@@ -16,6 +16,7 @@
                 isOwner = false
                 global.isOwner = false
                 this.isOwner = 'false'
+                opts.eventBus.trigger('updateQrcode')
                 this.update()
             });
         }

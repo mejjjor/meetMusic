@@ -1,19 +1,17 @@
 <mm-social>
-    <table>
-        <tr>
-            <td>Name </td>
-            <td>
-                <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input>
-            </td>
-        </tr>
-        <tr>
-            <td>Url picture </td>
-            <td>
-                <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }'></input>
-            </td>
-        </tr>
-    </table>
-    <img src='{ pictureUrl }'>
+    <div>
+        <div>
+            <span>Name :</span>
+            <span>Url picture :</span>
+        </div>
+        <div>
+            <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input>
+            <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }'></input>
+        </div>
+        <div>
+            <img src='{ pictureUrl }'>
+        </div>
+    </div>
     <script>
     'use strict'
 
@@ -56,7 +54,7 @@
         return true
     }
 
-    editName(e){
+    editName(e) {
         global.contributorName = e.target.value
     }
     </script>
