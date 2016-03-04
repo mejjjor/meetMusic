@@ -21,8 +21,9 @@
         suggest = Completely.completely(this.search, {
             fontSize: '24px',
             fontFamily: 'Arial',
-            color: '#933',
+            color: '#3f51b5',
         });
+        suggest.input.setAttribute('placeholder', 'youtube - or - add local file ->')
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
             queryYoutube(text,false)

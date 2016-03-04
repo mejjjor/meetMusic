@@ -26,7 +26,6 @@
         }
         opts.eventBus.trigger('addVideoFunctions', this.data, (data) => {
             this.data = data
-            console.log('addVideoFunctions addVideoFunctions')
         })
     })
 

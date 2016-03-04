@@ -433,7 +433,6 @@ riot.tag2('mm-result', '<i class="fa fa-plus-circle fa-3x" onclick="{add}"></i> 
         }
         opts.eventBus.trigger('addVideoFunctions', this.data, (data) => {
             this.data = data
-            console.log('addVideoFunctions addVideoFunctions')
         })
     })
 
@@ -455,8 +454,9 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
         suggest = Completely.completely(this.search, {
             fontSize: '24px',
             fontFamily: 'Arial',
-            color: '#933',
+            color: '#3f51b5',
         });
+        suggest.input.setAttribute('placeholder', 'youtube - or - add local file ->')
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
             queryYoutube(text,false)
@@ -638,8 +638,15 @@ riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</spa
     }.bind(this)
 }, '{ }');
 
-riot.tag2('mm-title', '<div> <h1> <a href="/">MEET ~ MUSIC</a> </h1> </div>', '', '', function(opts) {
-});
+riot.tag2('mm-title', '<div> <h1> <a href="/" class="{error}">MEET ~ MUSIC</a> </h1> </div>', '', '', function(opts) {
+    'use strict'
+
+    this.error = ''
+    opts.eventBus.on('errorOccurs', () => {
+        this.error = 'error'
+        this.update()
+    })
+}, '{ }');
 
 riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>', '', '', function(opts) {
     'use strict'

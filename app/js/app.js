@@ -12,7 +12,7 @@ require('./tags/addFile.tag')
 require('./tags/title.tag')
 require('./tags/parameters.tag')
 require('./tags/social.tag')
-// require('./tags/tags.js')
+    // require('./tags/tags.js')
 var eventBus
 
 var domReady = function(callback) {
@@ -22,7 +22,18 @@ var domReady = function(callback) {
 domReady(function() {
 
     eventBus = riot.observable()
-    riot.mount('*', { eventBus: eventBus })
+    riot.mount('*', { eventBus: eventBus });
+
+    (function() {
+        var log = console.error;
+        console.error = function() {
+            eventBus.trigger('errorOccurs')
+            log.apply(this, Array.prototype.slice.call(arguments));
+        };
+    }());
+    window.onerror = (error, url, line) => {
+        eventBus.trigger('errorOccurs')
+    };
 });
 
 global.init = function() {
