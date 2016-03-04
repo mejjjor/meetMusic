@@ -5,7 +5,9 @@
             <span>Url picture :</span>
         </div>
         <div>
-            <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input>
+            <div>
+                <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input><i class="fa fa-refresh" onclick="{ newName }"></i>
+            </div>
             <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }'></input>
         </div>
         <div>
@@ -17,8 +19,7 @@
 
     var themes = ['sugarsweets', 'heatwave', 'daisygarden', 'seascape', 'summerwarmth', 'bythepool', 'duskfalling', 'frogideas', 'berrypie']
 
-
-    this.on('mount', () => {
+    this.refresh = () => {
         var req = new XMLHttpRequest();
         req.open('GET', 'http://uinames.com/api/?region=france', true);
         req.onreadystatechange = (aEvt) => {
@@ -38,12 +39,21 @@
             }
         }
         req.send(null)
+    }
+
+    this.on('mount', () => {
+        this.refresh()
     })
 
 
     function getRandomPicture(name) {
         var theme = themes[Math.round(Math.random() * themes.length)]
         return 'http://tinygraphs.com/labs/isogrids/hexa16/' + name + '?theme=' + theme + '&numcolors=4&size=220&fmt=svg'
+    }
+
+
+    newName(e) {
+        this.refresh()
     }
 
     editPicture(e) {

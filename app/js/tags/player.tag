@@ -150,9 +150,9 @@
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
-                var progress = this.playlist[i].item.track.progress
-                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
-                    opts.eventBus.trigger('updatePlaylist', this.playlist)
+                // var progress = this.playlist[i].item.track.progress
+                // if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
+                //     opts.eventBus.trigger('updatePlaylist', this.playlist)
                 this.playlist[i].item.track.progress = Math.round(value)
 
                 break
@@ -185,7 +185,6 @@
                 for (var item2 of this.playlist)
                     if (item2.item.id == item.item.id) {
                         newPlaylist.push(item2)
-                        break
                     }
             this.playlist = newPlaylist
             opts.eventBus.trigger('updatePlaylist', this.playlist)
@@ -257,10 +256,6 @@
             if (this.playlist[i].item.id === this.currentId)
                 return this.playlist[i].item
         return {}
-    }
-
-    var deleteItem = () => {
-
     }
     </script>
 </mm-player>

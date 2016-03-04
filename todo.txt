@@ -1,8 +1,8 @@
 - faire les blocs modulables
-
-- fix : search : suggestion start good index (ex wriggles -> suggest = the wriggles)
+- fix : ne peut pas supprimer depuis contributor 
 
 - local storage de la playlist et des infos contributor
 - fix : ne lis pas les fichiers sur mobile
 - https
 - gérer si plusieurs owner à la première connexion -> ? (la blockchain !)
+- fix : search : ? (pas reproduit)

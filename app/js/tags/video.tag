@@ -10,7 +10,7 @@
         if (interval != undefined)
             window.clearInterval(interval)
         interval = setInterval(getSeek, 800)
-        if (videoPlayer != undefined) {
+        if (videoPlayer != undefined && typeof videoPlayer.getVideoUrl == 'function') {
             if (videoPlayer.getVideoUrl().split('v=')[1] == videoId) {
                 videoPlayer.playVideo()
                 return
@@ -31,7 +31,7 @@
     })
 
     opts.eventBus.on('pauseVideo', () => {
-        if (videoPlayer) {
+        if (videoPlayer && typeof videoPlayer.pauseVideo == 'function') {
             videoPlayer.pauseVideo()
         }
         if (interval != undefined)

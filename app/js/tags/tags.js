@@ -23,7 +23,7 @@ riot.tag2('mm-addfile', '<label for="inputFile"><i class="fa fa-plus-circle fa-2
                         opts.eventBus.trigger('youtubeSearch', tags.artist + " " + tags.title, 1, (results) => {
                             var thumbnail
                             if (results[0] == undefined)
-                                thumbnail = '/music.png'
+                                thumbnail = 'music.png'
                             else
                                 thumbnail = results[0].item.snippet.thumbnails.default.url
                             this.data = {
@@ -303,9 +303,7 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
-                var progress = this.playlist[i].item.track.progress
-                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
-                    opts.eventBus.trigger('updatePlaylist', this.playlist)
+
                 this.playlist[i].item.track.progress = Math.round(value)
 
                 break
@@ -338,7 +336,6 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
                 for (var item2 of this.playlist)
                     if (item2.item.id == item.item.id) {
                         newPlaylist.push(item2)
-                        break
                     }
             this.playlist = newPlaylist
             opts.eventBus.trigger('updatePlaylist', this.playlist)
@@ -411,10 +408,6 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
                 return this.playlist[i].item
         return {}
     }
-
-    var deleteItem = () => {
-
-    }
 }, '{ }');
 
 riot.tag2('mm-result', '<i class="fa fa-plus-circle fa-3x" onclick="{add}"></i> <img riot-src="{data.track.thumbnail}"> <span>{data.track.duration}</span> <span>{data.track.title}</span>', '', '', function(opts) {
@@ -440,6 +433,7 @@ riot.tag2('mm-result', '<i class="fa fa-plus-circle fa-3x" onclick="{add}"></i> 
         }
         opts.eventBus.trigger('addVideoFunctions', this.data, (data) => {
             this.data = data
+            console.log('addVideoFunctions addVideoFunctions')
         })
     })
 
@@ -591,12 +585,12 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
     }
 }, '{ }');
 
-riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</span> </div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}"></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
+riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</span> </div> <div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input><i class="fa fa-refresh" onclick="{newName}"></i> </div> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}"></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
     'use strict'
 
     var themes = ['sugarsweets', 'heatwave', 'daisygarden', 'seascape', 'summerwarmth', 'bythepool', 'duskfalling', 'frogideas', 'berrypie']
 
-    this.on('mount', () => {
+    this.refresh = () => {
         var req = new XMLHttpRequest();
         req.open('GET', 'http://uinames.com/api/?region=france', true);
         req.onreadystatechange = (aEvt) => {
@@ -616,12 +610,20 @@ riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</spa
             }
         }
         req.send(null)
+    }
+
+    this.on('mount', () => {
+        this.refresh()
     })
 
     function getRandomPicture(name) {
         var theme = themes[Math.round(Math.random() * themes.length)]
         return 'http://tinygraphs.com/labs/isogrids/hexa16/' + name + '?theme=' + theme + '&numcolors=4&size=220&fmt=svg'
     }
+
+    this.newName = function(e) {
+        this.refresh()
+    }.bind(this)
 
     this.editPicture = function(e) {
         this.pictureUrl = e.target.value
@@ -647,7 +649,7 @@ riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>'
         if (interval != undefined)
             window.clearInterval(interval)
         interval = setInterval(getSeek, 800)
-        if (videoPlayer != undefined) {
+        if (videoPlayer != undefined && typeof videoPlayer.getVideoUrl == 'function') {
             if (videoPlayer.getVideoUrl().split('v=')[1] == videoId) {
                 videoPlayer.playVideo()
                 return
@@ -668,7 +670,7 @@ riot.tag2('mm-video', '<div id="video-container"> <div id="video"></div> </div>'
     })
 
     opts.eventBus.on('pauseVideo', () => {
-        if (videoPlayer) {
+        if (videoPlayer && typeof videoPlayer.pauseVideo == 'function') {
             videoPlayer.pauseVideo()
         }
         if (interval != undefined)
