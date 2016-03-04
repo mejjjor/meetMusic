@@ -5,7 +5,7 @@
         <button onclick='{ createRoom }'>Create</button>
         <button onclick='{ joinRoom }'>Join</button>
     </div>
-    <div if={ qrcode != '' } id='qrcode'>
+    <div if={ qrcode !='' } id='qrcode'>
         <img src='{ qrcode }'>
     </div>
     <div>
@@ -13,6 +13,16 @@
         <input type='checkbox'>Delete item after playing</input>
     </div>
 
+    <h2>Contributors</h2>
+    <ol>
+        <li each={ peers } class='contributor'>
+            <img src="{ item.picture }" />
+            <span>{ item.name }</span>
+            <span if={ item.isOwner }>  -- IS OWNER !</span>
+        </li>
+    </ol>
+
+<h2>Played</h2>
     <ol>
         <li each={ playlist }>
             <mm-item content="{ item }"></mm-item>
@@ -23,6 +33,7 @@
     this.editable = true
     global.editable = true
     this.playlist = []
+    this.peers = []
 
     this.qrcode = ''
 
@@ -51,14 +62,23 @@
         global.editable = e.target.value
     }
 
-    opts.eventBus.on('updateListenned',(playlist)=>{
-    	this.playlist = playlist
-    	this.update()
+    opts.eventBus.on('updateListenned', (playlist) => {
+        this.playlist = playlist
+        this.update()
     })
 
-    opts.eventBus.on('updateQrcode',()=>{
-    	this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location
+    opts.eventBus.on('updateQrcode', () => {
+        this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location
         this.update()
+    })
+
+    opts.eventBus.on('updatePeers',(peers)=>{
+    	this.peers = []
+    	for(var i=0;i<peers.length;i++){
+    		this.peers.push({item:peers[i].meetMusicInfo})
+    	}
+    	console.log('peeers: ',this.peers)
+    	this.update()
     })
     </script>
 </mm-parameters>

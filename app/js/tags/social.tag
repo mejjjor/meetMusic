@@ -2,13 +2,13 @@
     <div>
         <div>
             <span>Name :</span>
-            <span>Url picture :</span>
+            <span>Picture :</span>
         </div>
         <div>
             <div>
                 <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input><i class="fa fa-refresh" onclick="{ newName }"></i>
             </div>
-            <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }'></input>
+            <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }' placeholder="url ..."></input>
         </div>
         <div>
             <img src='{ pictureUrl }'>
@@ -36,6 +36,7 @@
                 }
                 global.contributorName = this.name
                 global.contributorPictureUrl = this.pictureUrl
+                opts.eventBus.trigger('sendInitToAll')
             }
         }
         req.send(null)

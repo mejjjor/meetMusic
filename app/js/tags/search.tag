@@ -23,7 +23,7 @@
             fontFamily: 'Arial',
             color: '#3f51b5',
         });
-        suggest.input.setAttribute('placeholder', 'youtube - or - add local file ->')
+        suggest.input.setAttribute('placeholder', 'video search  ///  add file ->')
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
             queryYoutube(text,false)

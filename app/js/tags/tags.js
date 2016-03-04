@@ -119,11 +119,12 @@ riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-sr
     }.bind(this)
 }, '{ }');
 
-riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div> <div if="{qrcode != \'\'}" id="qrcode"> <img riot-src="{qrcode}"> </div> <div> <input type="checkbox" value="{editable}" onchange="{changeEdit}">Playlist editable</input> <input type="checkbox">Delete item after playing</input> </div> <ol> <li each="{playlist}"> <mm-item content="{item}"></mm-item> </li> </ol>', '', '', function(opts) {
+riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div> <div if="{qrcode !=\'\'}" id="qrcode"> <img riot-src="{qrcode}"> </div> <div> <input type="checkbox" value="{editable}" onchange="{changeEdit}">Playlist editable</input> <input type="checkbox">Delete item after playing</input> </div> <h2>Contributors</h2> <ol> <li each="{peers}" class="contributor"> <img riot-src="{item.picture}"> <span>{item.name}</span> <span if="{item.isOwner}"> -- IS OWNER !</span> </li> </ol> <h2>Played</h2> <ol> <li each="{playlist}"> <mm-item content="{item}"></mm-item> </li> </ol>', '', '', function(opts) {
     'use strict'
     this.editable = true
     global.editable = true
     this.playlist = []
+    this.peers = []
 
     this.qrcode = ''
 
@@ -152,14 +153,23 @@ riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input 
         global.editable = e.target.value
     }.bind(this)
 
-    opts.eventBus.on('updateListenned',(playlist)=>{
-    	this.playlist = playlist
-    	this.update()
+    opts.eventBus.on('updateListenned', (playlist) => {
+        this.playlist = playlist
+        this.update()
     })
 
-    opts.eventBus.on('updateQrcode',()=>{
-    	this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location
+    opts.eventBus.on('updateQrcode', () => {
+        this.qrcode = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + location
         this.update()
+    })
+
+    opts.eventBus.on('updatePeers',(peers)=>{
+    	this.peers = []
+    	for(var i=0;i<peers.length;i++){
+    		this.peers.push({item:peers[i].meetMusicInfo})
+    	}
+    	console.log('peeers: ',this.peers)
+    	this.update()
     })
 }, '{ }');
 
@@ -456,7 +466,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
             fontFamily: 'Arial',
             color: '#3f51b5',
         });
-        suggest.input.setAttribute('placeholder', 'youtube - or - add local file ->')
+        suggest.input.setAttribute('placeholder', 'video search  ///  add file ->')
         suggest.onChange = (text) => {
             suggest.startFrom = text.length;
             queryYoutube(text,false)
@@ -585,7 +595,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
     }
 }, '{ }');
 
-riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</span> </div> <div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input><i class="fa fa-refresh" onclick="{newName}"></i> </div> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}"></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
+riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Picture :</span> </div> <div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input><i class="fa fa-refresh" onclick="{newName}"></i> </div> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}" placeholder="url ..."></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
     'use strict'
 
     var themes = ['sugarsweets', 'heatwave', 'daisygarden', 'seascape', 'summerwarmth', 'bythepool', 'duskfalling', 'frogideas', 'berrypie']
@@ -607,6 +617,7 @@ riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Url picture :</spa
                 }
                 global.contributorName = this.name
                 global.contributorPictureUrl = this.pictureUrl
+                opts.eventBus.trigger('sendInitToAll')
             }
         }
         req.send(null)
@@ -731,7 +742,7 @@ riot.tag2('mm-webrtc', '', '', '', function(opts) {
         }
     });
 
-    opts.eventBus.on('createRoom',(room)=> {
+    opts.eventBus.on('createRoom', (room) => {
         this.room = room
 
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
@@ -808,24 +819,43 @@ riot.tag2('mm-webrtc', '', '', '', function(opts) {
                     value: value
                 })
             }
-
         }
+    })
+
+    opts.eventBus.on('sendInitToAll', () => {
+        for (var i = 0; i < peers.length; i++)
+            peers[i].sendData({
+                type: 'init',
+                ownerId: ownerId,
+                me: {
+                    name: global.contributorName,
+                    picture: global.contributorPictureUrl,
+                    isOwner: isOwner
+                }
+            })
     })
 
     webrtc.on('createdPeer', (peer) => {
         console.log('me: ', webrtc.connection.connection.id)
         console.log('createdPeer: ', peer.id)
         peer.sendData({
+            type: 'init',
             ownerId: ownerId,
-            type: 'init'
+            me: {
+                name: global.contributorName,
+                picture: global.contributorPictureUrl,
+                isOwner: isOwner
+            }
         })
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
-                if (peer.pc.iceConnectionState == 'closed')
+                if (peer.pc.iceConnectionState == 'closed') {
                     _.remove(peers, (p) => {
                         return p == peer
                     })
+                    opts.eventBus.trigger('updatePeers', peers)
+                }
             })
         }
         peer.on('fileTransfer', (metadata, receiver) => {
@@ -845,8 +875,13 @@ riot.tag2('mm-webrtc', '', '', '', function(opts) {
             console.log('from', peer)
             switch (metadata.type) {
                 case 'init':
-                    if (isOwner)
-                        peers.push(peer)
+
+                    peer.meetMusicInfo = metadata.me
+                    _.remove(peers, (p) => {
+                        return p.id == peer.id
+                    })
+                    peers.push(peer)
+                    opts.eventBus.trigger('updatePeers', peers)
                     if (metadata.ownerId == '')
                         opts.eventBus.trigger('updateItems')
                     if (ownerId == '')

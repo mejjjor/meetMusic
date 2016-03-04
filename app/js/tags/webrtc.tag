@@ -36,9 +36,9 @@
         }
     });
 
-    opts.eventBus.on('createRoom',(room)=> {
+    opts.eventBus.on('createRoom', (room) => {
         this.room = room
-        //hide parameters
+            //hide parameters
         var val = this.room.toLowerCase().replace(/\s/g, '-').replace(/[^A-Za-z0-9_\-]/g, '')
         webrtc.createRoom(val, (err, name) => {
             console.log(' create room cb', arguments)
@@ -113,24 +113,43 @@
                     value: value
                 })
             }
-
         }
+    })
+
+    opts.eventBus.on('sendInitToAll', () => {
+        for (var i = 0; i < peers.length; i++)
+            peers[i].sendData({
+                type: 'init',
+                ownerId: ownerId,
+                me: {
+                    name: global.contributorName,
+                    picture: global.contributorPictureUrl,
+                    isOwner: isOwner
+                }
+            })
     })
 
     webrtc.on('createdPeer', (peer) => {
         console.log('me: ', webrtc.connection.connection.id)
         console.log('createdPeer: ', peer.id)
         peer.sendData({
+            type: 'init',
             ownerId: ownerId,
-            type: 'init'
+            me: {
+                name: global.contributorName,
+                picture: global.contributorPictureUrl,
+                isOwner: isOwner
+            }
         })
         if (peer && peer.pc) {
             peer.pc.on('iceConnectionStateChange', function(event) {
                 console.log('state', peer.pc.iceConnectionState)
-                if (peer.pc.iceConnectionState == 'closed')
+                if (peer.pc.iceConnectionState == 'closed') {
                     _.remove(peers, (p) => {
                         return p == peer
                     })
+                    opts.eventBus.trigger('updatePeers', peers)
+                }
             })
         }
         peer.on('fileTransfer', (metadata, receiver) => {
@@ -150,8 +169,13 @@
             console.log('from', peer)
             switch (metadata.type) {
                 case 'init':
-                    if (isOwner)
-                        peers.push(peer)
+                    //if (isOwner)
+                    peer.meetMusicInfo = metadata.me
+                    _.remove(peers, (p) => {
+                        return p.id == peer.id
+                    })
+                    peers.push(peer)
+                    opts.eventBus.trigger('updatePeers', peers)
                     if (metadata.ownerId == '')
                         opts.eventBus.trigger('updateItems')
                     if (ownerId == '')
