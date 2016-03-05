@@ -1,7 +1,7 @@
 <mm-title>
     <div>
         <h1 >
-		<a href='/' class='{ error }'>MEET ~ MUSIC</a>
+		<a href='/meetMusic/' class='{ error }'>MEET ~ MUSIC</a>
 		</h1>
         <!-- <i class="fa fa-cog fa-2x"></i> -->
     </div>

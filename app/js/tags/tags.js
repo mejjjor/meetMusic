@@ -654,7 +654,7 @@ riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Picture :</span> <
     }.bind(this)
 }, '{ }');
 
-riot.tag2('mm-title', '<div> <h1> <a href="/" class="{error}">MEET ~ MUSIC</a> </h1> </div>', '', '', function(opts) {
+riot.tag2('mm-title', '<div> <h1> <a href="/meetMusic/" class="{error}">MEET ~ MUSIC</a> </h1> </div>', '', '', function(opts) {
     'use strict'
 
     this.error = ''
