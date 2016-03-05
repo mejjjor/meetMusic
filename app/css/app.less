@@ -1,4 +1,4 @@
-@maxWidth : 314px;
+@maxWidth : 100%-2px;
 body {
     font-family: "Montserrat", "Open Sans", "Helvetica Neue", "Arial", sans- serif;
     font-size: 14px;
@@ -6,13 +6,17 @@ body {
     padding: 0 3px;
 }
 
+#bodyContainer{
+    width: 100%;
+}
+
 mm-title {
     div {
         display: inline-flex;
         justify-content: space-around;
         align-items: center;
-        width: @maxWidth+2px;
-        background-image: url(http://www.tinygraphs.com/isogrids/banner/random/gradient?theme=bythepool&numcolors=4&h=50&w=400&xt=25);
+        width: 100%;
+        background-image: url(http://www.tinygraphs.com/isogrids/banner/random/gradient?theme=bythepool&numcolors=4&h=50&w=500&xt=25);
         background-size: cover;
     }
     h1 {
@@ -145,7 +149,7 @@ mm-social {
     }
     >div:nth-of-type(1) {
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
         >div {
             display: flex;
             flex-direction: column;
@@ -217,4 +221,10 @@ mm-parameters {
 
 .show {
     display: initial;
+}
+
+@media only screen and (min-width: 768px) {
+    #bodyContainer{
+    width: 400px;
+}
 }

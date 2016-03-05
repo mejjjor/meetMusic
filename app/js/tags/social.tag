@@ -6,7 +6,7 @@
         </div>
         <div>
             <div>
-                <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }'></input><i class="fa fa-refresh" onclick="{ newName }"></i>
+                <input type='text' value='{ name }' onkeyup='{ editName }' onpaste='{ editName }' maxlength='7'></input><i class="fa fa-refresh" onclick="{ newName }"></i>
             </div>
             <input type='text' onkeyup='{ editPicture }' onpaste='{ editPicture }' placeholder="url ..."></input>
         </div>
@@ -26,6 +26,7 @@
             if (req.readyState == 4) {
                 if (req.status == 200) {
                     this.name = JSON.parse(req.responseText).name
+                    this.name = this.name.slice(0,7)
                     this.pictureUrl = getRandomPicture(this.name)
                     this.update()
                 } else {

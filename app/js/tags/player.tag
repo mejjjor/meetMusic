@@ -128,7 +128,7 @@
                 if (this.playlist[i].item.status.play == 'hide')
                     opts.eventBus.trigger('pauseCurrent')
                 transitionItem(this.root.querySelector('ol').childNodes[i + 1], 'translateUp', i)
-                opts.eventBus.trigger('updatePlaylist', this.playlist)
+                //opts.eventBus.trigger('updatePlaylist', this.playlist)
                 break
             }
         this.update()
@@ -150,9 +150,9 @@
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
-                // var progress = this.playlist[i].item.track.progress
-                // if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
-                //     opts.eventBus.trigger('updatePlaylist', this.playlist)
+                var progress = this.playlist[i].item.track.progress
+                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
+                    opts.eventBus.trigger('updatePlaylist', this.playlist)
                 this.playlist[i].item.track.progress = Math.round(value)
 
                 break

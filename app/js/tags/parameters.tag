@@ -13,16 +13,16 @@
         <input type='checkbox'>Delete item after playing</input>
     </div>
 
-    <h2>Contributors</h2>
+    <h3>Contributors</h3>
     <ol>
         <li each={ peers } class='contributor'>
             <img src="{ item.picture }" />
             <span>{ item.name }</span>
-            <span if={ item.isOwner }>  -- IS OWNER !</span>
+            <span if={ item.isOwner }>&nbsp;&nbsp; -- IS OWNER !</span>
         </li>
     </ol>
 
-<h2>Played</h2>
+    <h3>Played</h3>
     <ol>
         <li each={ playlist }>
             <mm-item content="{ item }"></mm-item>
@@ -72,13 +72,15 @@
         this.update()
     })
 
-    opts.eventBus.on('updatePeers',(peers)=>{
-    	this.peers = []
-    	for(var i=0;i<peers.length;i++){
-    		this.peers.push({item:peers[i].meetMusicInfo})
-    	}
-    	console.log('peeers: ',this.peers)
-    	this.update()
+    opts.eventBus.on('updatePeers', (peers) => {
+        this.peers = []
+        for (var i = 0; i < peers.length; i++) {
+            this.peers.push({
+                item: peers[i].meetMusicInfo
+            })
+        }
+        console.log('peeers: ', this.peers)
+        this.update()
     })
     </script>
 </mm-parameters>

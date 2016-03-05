@@ -119,7 +119,7 @@ riot.tag2('mm-item', '<div> <i class="fa fa-ellipsis-v handle"></i> <img riot-sr
     }.bind(this)
 }, '{ }');
 
-riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div> <div if="{qrcode !=\'\'}" id="qrcode"> <img riot-src="{qrcode}"> </div> <div> <input type="checkbox" value="{editable}" onchange="{changeEdit}">Playlist editable</input> <input type="checkbox">Delete item after playing</input> </div> <h2>Contributors</h2> <ol> <li each="{peers}" class="contributor"> <img riot-src="{item.picture}"> <span>{item.name}</span> <span if="{item.isOwner}"> -- IS OWNER !</span> </li> </ol> <h2>Played</h2> <ol> <li each="{playlist}"> <mm-item content="{item}"></mm-item> </li> </ol>', '', '', function(opts) {
+riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input type="text" onkeyup="{edit}" placeholder="playlist name"></input> <button onclick="{createRoom}">Create</button> <button onclick="{joinRoom}">Join</button> </div> <div if="{qrcode !=\'\'}" id="qrcode"> <img riot-src="{qrcode}"> </div> <div> <input type="checkbox" value="{editable}" onchange="{changeEdit}">Playlist editable</input> <input type="checkbox">Delete item after playing</input> </div> <h3>Contributors</h3> <ol> <li each="{peers}" class="contributor"> <img riot-src="{item.picture}"> <span>{item.name}</span> <span if="{item.isOwner}">&nbsp;&nbsp; -- IS OWNER !</span> </li> </ol> <h3>Played</h3> <ol> <li each="{playlist}"> <mm-item content="{item}"></mm-item> </li> </ol>', '', '', function(opts) {
     'use strict'
     this.editable = true
     global.editable = true
@@ -163,13 +163,15 @@ riot.tag2('mm-parameters', '<div> <h3>Create a playlist or join one</h3> <input 
         this.update()
     })
 
-    opts.eventBus.on('updatePeers',(peers)=>{
-    	this.peers = []
-    	for(var i=0;i<peers.length;i++){
-    		this.peers.push({item:peers[i].meetMusicInfo})
-    	}
-    	console.log('peeers: ',this.peers)
-    	this.update()
+    opts.eventBus.on('updatePeers', (peers) => {
+        this.peers = []
+        for (var i = 0; i < peers.length; i++) {
+            this.peers.push({
+                item: peers[i].meetMusicInfo
+            })
+        }
+        console.log('peeers: ', this.peers)
+        this.update()
     })
 }, '{ }');
 
@@ -291,7 +293,7 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
                 if (this.playlist[i].item.status.play == 'hide')
                     opts.eventBus.trigger('pauseCurrent')
                 transitionItem(this.root.querySelector('ol').childNodes[i + 1], 'translateUp', i)
-                opts.eventBus.trigger('updatePlaylist', this.playlist)
+
                 break
             }
         this.update()
@@ -313,7 +315,9 @@ riot.tag2('mm-player', '<audio id="mp3Player" ontimeupdate="{timeUpdate}" onplay
     opts.eventBus.on('getSeekTime', (value) => {
         for (var i = 0; i < this.playlist.length; i++)
             if (this.playlist[i].item.id == this.currentId) {
-
+                var progress = this.playlist[i].item.track.progress
+                if (Math.round(value) % 25 == 0 && progress != Math.round(value) || (progress == 0 && value > 0))
+                    opts.eventBus.trigger('updatePlaylist', this.playlist)
                 this.playlist[i].item.track.progress = Math.round(value)
 
                 break
@@ -595,7 +599,7 @@ riot.tag2('mm-search', '<div id="search" type="text" onpaste="{edit}" onkeyup="{
     }
 }, '{ }');
 
-riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Picture :</span> </div> <div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}"></input><i class="fa fa-refresh" onclick="{newName}"></i> </div> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}" placeholder="url ..."></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
+riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Picture :</span> </div> <div> <div> <input type="text" value="{name}" onkeyup="{editName}" onpaste="{editName}" maxlength="7"></input><i class="fa fa-refresh" onclick="{newName}"></i> </div> <input type="text" onkeyup="{editPicture}" onpaste="{editPicture}" placeholder="url ..."></input> </div> <div> <img riot-src="{pictureUrl}"> </div> </div>', '', '', function(opts) {
     'use strict'
 
     var themes = ['sugarsweets', 'heatwave', 'daisygarden', 'seascape', 'summerwarmth', 'bythepool', 'duskfalling', 'frogideas', 'berrypie']
@@ -607,6 +611,7 @@ riot.tag2('mm-social', '<div> <div> <span>Name :</span> <span>Picture :</span> <
             if (req.readyState == 4) {
                 if (req.status == 200) {
                     this.name = JSON.parse(req.responseText).name
+                    this.name = this.name.slice(0,7)
                     this.pictureUrl = getRandomPicture(this.name)
                     this.update()
                 } else {
