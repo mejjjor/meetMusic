@@ -1,7 +1,7 @@
 {
   "name": "Meet Music",
   "description": "Play music everywhere",
-  "launch_path": "index.html",
+  "launch_path": "/index.html",
   "icons": {
     "128": "favicon.png"
   },
