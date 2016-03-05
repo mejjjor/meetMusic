@@ -1,13 +1,17 @@
 {
-  "name": "Meet Music",
-  "description": "Play music everywhere",
-  "launch_path": "/index.html",
-  "icons": {
-    "128": "favicon.png"
-  },
-  "developer": {
-    "name": "Mejjjor",
-    "url": "http://erik-aouizerate.me"
-  },
-  "default_locale": "fr"
+    "short_name": "Meet Music",
+    "name": "Meet Music",
+    "description": "Play music everywhere",
+    "launch_path": "index.html",
+    "icons": [{
+      "src": "favicon_144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }],
+    "developer": {
+        "name": "Mejjjor",
+        "url": "http://erik-aouizerate.me"
+    },
+    "display": "standalone",
+    "default_locale": "fr"
 }
